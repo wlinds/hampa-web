@@ -5,43 +5,43 @@ const ServicesSection: React.FC = () => {
   const services = [
     {
       icon: Sprout,
-      title: 'Etablering av Hampaareal',
-      description: 'Vi sköter allt från juridiska SAM-ansökningar till sådd, skötsel och skörd. Kostnadsfri offert ingår.',
-      features: ['SAM-ansökan', 'Godkänd sortetikett', 'Komplett skötsel', 'Informationsskylt'],
+      title: 'Etablering av hampaareal',
+      description: 'Vi sköter allt hela vägen från det juridiska, sådd, skötsel till skörd. Kostnadsfri offert ingår.',
+      features: ['Inför etablering görs SAM-ansökan och inskickning av godkänd sort etikett tillsammans med kund.', 'Hampaarealen blir därmed godkänd enligt lag.'],
       color: 'hemp'
     },
     {
       icon: MapPin,
-      title: 'Etablering av Äng genom Hampametoden',
-      description: 'En process som tar några säsonger för att laka ur jorden på näring och etablera ängsytor effektivt.',
-      features: ['Naturlig urlakningsprocess', 'Ängsfrön kombinerat med hampa', 'Höga ekosystemtjänster', 'Flerårig process'],
+      title: 'Etablering av äng genom hampametoden',
+      description: 'En process som tar några säsonger för att laka ur jorden på näring för att sedan använda hampan tillsammans med ängsfrön för en effektivt etablering.',
+      features: ['Hampan bidrar med väldigt höga värden av ekosystemtjänster under processen.'],
       color: 'earth'
     },
     {
       icon: Users,
-      title: 'Rådgivning Biologisk Mångfald',
-      description: 'Personlig rådgivning för att öka biologisk mångfald på era ytor med kostnadsfri offert.',
+      title: 'Rådgivning kring biologisk mångfald',
+      description: 'Personlig rådgivning för att öka biologisk mångfald på era ytor. Kostnadsfri offert.',
       features: ['Besök på plats', 'Åtgärdsförslag', 'Skötselplan', 'Skiss med placeringar'],
       color: 'hemp'
     },
     {
       icon: BookOpen,
-      title: 'Grönyteskötsel',
-      description: 'Ekologisk grönyteskötsel som främjar inhemska arter och skapar vacker estetik.',
-      features: ['Ekologiska metoder', 'Inhemska arter', 'Estetisk design', 'Hållbar skötsel'],
+      title: 'Grönyteskötsel utifrån biologisk mångfald',
+      description: 'Genom ekologisk grönyteskötselmetod och främjandet av diversiteten kring inhemska arter ökar vi den biologiska mångfalden på er yta samtidigt som vi tar hänsyn till en vacker estetik.',
+      features: ['Vi förvandlar eftersatta grönytor till en oas av biologisk mångfald.'],
       color: 'earth'
     }
   ];
 
   const consultationOptions = [
     {
-      size: '<50kvm',
+      size: '<50m²',
       duration: '30 min',
       includes: ['Besök på plats', 'Lista på åtgärdsförslag'],
       icon: Clock
     },
     {
-      size: '>50kvm',
+      size: '>50m²',
       duration: '~90 min',
       includes: ['Besök på plats', 'Lista på åtgärdsförslag', 'Skötselplan', 'Skiss med placering'],
       icon: MapPin
@@ -57,7 +57,7 @@ const ServicesSection: React.FC = () => {
             Våra Tjänster
           </h2>
           <p className="text-xl text-hemp-700 leading-relaxed">
-            Vi vänder oss till privata & kommunala hyresvärdar, bostadsrättföreningar och kommuner med specialiserade tjänster för hållbar utveckling.
+            Med specialiserade tjänster för hållbar utveckling vänder vi oss till privata & kommunala hyresvärdar, bostadsrättföreningar och kommuner.
           </p>
         </div>
 
@@ -93,11 +93,66 @@ const ServicesSection: React.FC = () => {
           ))}
         </div>
 
+
+        {/* Transparency & Information Section */}
+        <div className="mb-16">
+          <div className="bg-gradient-to-r from-hemp-700 to-hemp-800 rounded-2xl overflow-hidden shadow-xl">
+            <div className="grid lg:grid-cols-2 items-center">
+              {/* Content */}
+              <div className="p-8 lg:p-12 text-white">
+                <h3 className="text-2xl font-bold mb-4">
+                  Transparens & Allmän Information
+                </h3>
+
+                <p className="text-hemp-100 mb-6">
+                  Vi tror på öppenhet och utbildning. Därför placerar vi alltid informationsskyltar vid våra hampafält som förklarar vad industrihampa är, dess fördelar för miljön, och att det inte är en drog.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-hemp-300 rounded-full"></div>
+                    <span className="text-hemp-100">Utbildar allmänheten om industrihampa</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-hemp-300 rounded-full"></div>
+                    <span className="text-hemp-100">Förebygger missförstånd och oro</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-hemp-300 rounded-full"></div>
+                    <span className="text-hemp-100">Visar miljöfördelar och ekosystemtjänster</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Image with Sign Overlay */}
+              <div className="relative h-80 lg:h-96">
+                <img
+                  src="/images/hemp-field-1.jpeg"
+                  alt="Hampafält med informationsskylt"
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Information Sign Overlay */}
+                <div className="absolute -top-1 left-0"> 
+                  <div className="max-w-xs">
+                    <img
+                      src="/images/infoskylt.jpg"
+                      alt="Informationsskylt för hampafält"
+                      className="w-full h-auto block"
+                    />
+                  </div>
+                </div>
+
+                {/* Gradient Overlay */}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Consultation Options */}
         <div className="bg-gradient-to-r from-hemp-600 to-hemp-700 rounded-2xl p-8 text-white">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-bold mb-4">
-              Rådgivning Biologisk Mångfald
+              Rådgivning biologisk mångfald
             </h3>
             <p className="text-hemp-100 text-lg">
               Välj det alternativ som passar er yta bäst - kostnadsfri offert ingår alltid
