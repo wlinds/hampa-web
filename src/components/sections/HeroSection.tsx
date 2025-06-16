@@ -23,11 +23,11 @@ const HeroSection: React.FC = () => {
               
               <h1 className="text-4xl md:text-6xl font-bold text-hemp-900 leading-tight">
                 Hampa för en
-                <span className="text-gradient block">Hållbar Framtid</span>
+                <span className="text-gradient block">hållbar framtid</span>
               </h1>
               
               <p className="text-xl text-hemp-700 leading-relaxed max-w-2xl">
-                Vi hjälper fastighetsägare, kommuner och bostadsrättsföreningar att etablera hampaareal och främja biologisk mångfald. Från juridisk hantering till skörd - vi sköter allt.
+                Vi hjälper fastighetsägare, kommuner och bostadsrättsföreningar att etablera äng och hampaareal för att främja biologisk mångfald. Från juridisk hantering till skörd - vi sköter allt.
               </p>
             </div>
 
@@ -35,15 +35,17 @@ const HeroSection: React.FC = () => {
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center p-4 bg-white/60 backdrop-blur rounded-lg">
                 <div className="text-2xl font-bold text-hemp-800">9-15</div>
-                <div className="text-sm text-hemp-600">ton CO₂/hektar</div>
+                <div className="text-sm font-medium text-hemp-700 mb-1">ton CO₂/hektar</div>
+                <div className="text-xs text-hemp-600">Kolbindning per säsong</div>
               </div>
               <div className="text-center p-4 bg-white/60 backdrop-blur rounded-lg">
-                <div className="text-2xl font-bold text-hemp-800">1966</div>
-                <div className="text-sm text-hemp-600">till EU-inträde</div>
+                <div className="text-2xl font-bold text-hemp-800">120</div>
+                <div className="text-sm font-medium text-hemp-700 mb-1">dagar tillväxt</div>
+                <div className="text-xs text-hemp-600">Från frö till skörd</div>
               </div>
               <div className="text-center p-4 bg-white/60 backdrop-blur rounded-lg">
                 <div className="text-2xl font-bold text-hemp-800">100%</div>
-                <div className="text-sm text-hemp-600">ekologiskt</div>
+                <div className="text-sm font-medium text-hemp-700 mb-1">ekologiskt</div>
               </div>
             </div>
 
@@ -89,9 +91,9 @@ const HeroSection: React.FC = () => {
           <div className="relative animate-slide-up animation-delay-200">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="/api/placeholder/600/700"
-                alt="Hampafält med lush grön vegetation"
-                className="w-full h-full object-cover"
+                src="/images/hemp-field-1.jpeg"
+                alt="Närbiid av hampaplanta med frodigt grön vegetation"
+                className="w-full h-[500px] md:h-[600px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-hemp-900/30 to-transparent"></div>
               
@@ -103,7 +105,7 @@ const HeroSection: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-hemp-900">Industrihampa</h3>
-                    <p className="text-sm text-hemp-600">Cannabis Sativa - ger inget rus</p>
+                    <p className="text-sm text-hemp-600">Cannabis Sativa-Fionla </p>
                   </div>
                 </div>
               </div>
@@ -116,12 +118,6 @@ const HeroSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-hemp-400 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-hemp-400 rounded-full mt-2 animate-pulse"></div>
-        </div>
-      </div>
     </section>
   );
 };
