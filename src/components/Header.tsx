@@ -18,8 +18,24 @@ const Header: React.FC = () => {
     { name: 'Hem', href: '#hero' },
     { name: 'Tjänster', href: '#services' },
     { name: 'Om Hampa', href: '#about-hemp' },
+    { name: 'Bildgalleri', href: '#gallery' },
+    { name: 'Frågor & Svar', href: '#faq' },
+    { name: 'Om Oss', href: '#about-us' },
     { name: 'Kontakt', href: '#contact' },
   ];
+
+  const handleNavClick = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      const headerHeight = 80;
+      const elementPosition = (element as HTMLElement).offsetTop - headerHeight;
+      window.scrollTo({
+        top: elementPosition,
+        behavior: 'smooth'
+      });
+    }
+    setIsMenuOpen(false); // Always close mobile menu
+  };
 
   return (
     <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${
@@ -31,7 +47,18 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-hemp-600 rounded-full flex items-center justify-center">
+            <img
+              src="/logo.svg"
+              alt="Hampaoasen Logo"
+              className="w-12 h-12 object-contain"
+              onError={(e) => {
+                // Fallback to icon if logo doesn't exist
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+            <div className="w-10 h-10 bg-hemp-600 rounded-full flex items-center justify-center hidden">
               <Leaf className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -49,8 +76,7 @@ const Header: React.FC = () => {
                 className="text-hemp-700 hover:text-hemp-900 font-medium transition-colors duration-200 relative group"
                 onClick={(e) => {
                   e.preventDefault();
-                  const element = document.querySelector(item.href);
-                  element?.scrollIntoView({ behavior: 'smooth' });
+                  handleNavClick(item.href);
                 }}
               >
                 {item.name}
@@ -62,7 +88,7 @@ const Header: React.FC = () => {
               className="btn-primary"
               onClick={(e) => {
                 e.preventDefault();
-                document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+                handleNavClick('#contact');
               }}
             >
               Få Offert
@@ -89,9 +115,7 @@ const Header: React.FC = () => {
                   className="text-hemp-700 hover:text-hemp-900 font-medium py-2 px-4 rounded-lg hover:bg-hemp-50 transition-all duration-200"
                   onClick={(e) => {
                     e.preventDefault();
-                    const element = document.querySelector(item.href);
-                    element?.scrollIntoView({ behavior: 'smooth' });
-                    setIsMenuOpen(false);
+                    handleNavClick(item.href);
                   }}
                 >
                   {item.name}
@@ -102,8 +126,7 @@ const Header: React.FC = () => {
                 className="btn-primary mx-4 text-center"
                 onClick={(e) => {
                   e.preventDefault();
-                  document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-                  setIsMenuOpen(false);
+                  handleNavClick('#contact');
                 }}
               >
                 Få Offert
