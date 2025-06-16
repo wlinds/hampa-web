@@ -47,8 +47,8 @@ const ContactSection: React.FC = () => {
     {
       icon: MapPin,
       title: 'Verksamhetsområde',
-      value: 'Sverige',
-      description: 'Vi arbetar över hela landet'
+      value: 'Regionalt med utgångspunkt Göteborg',
+      description: 'Västra Götaland, Bohuslän, Halland'
     },
     {
       icon: CheckCircle,
@@ -64,7 +64,7 @@ const ContactSection: React.FC = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-hemp-900 mb-6">
-            Kontakta Oss
+            Kontakta oss!
           </h2>
           <p className="text-xl text-hemp-700 leading-relaxed">
             Tveka inte att ta kontakt med oss vid intresse av rådgivning kring biologisk mångfald eller etablering av hampaareal. Kostnadsfri offert ingår alltid.
@@ -129,7 +129,7 @@ const ContactSection: React.FC = () => {
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 text-hemp-300" />
-                  <span className="text-hemp-100">Utbildning ingår</span>
+                  <span className="text-hemp-100">Utbildning</span>
                 </li>
               </ul>
             </div>
