@@ -15,7 +15,9 @@ const Footer: React.FC = () => {
     { name: 'Hem', href: '#hero' },
     { name: 'Tjänster', href: '#services' },
     { name: 'Om Hampa', href: '#about-hemp' },
-    { name: 'Kontakt', href: '#contact' }
+    { name: 'Frågor & Svar', href: '#faq' },
+    { name: 'Om Oss', href: '#about-us' },
+    { name: 'Kontakt', href: '#contact' },
   ];
 
   return (
