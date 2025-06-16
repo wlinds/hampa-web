@@ -80,11 +80,28 @@ const AboutHempSection: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            {/* Image */}
+            <div className="relative rounded-xl overflow-hidden shadow-lg">
+              <img
+                src="/images/hemp-field-2.jpeg"
+                alt="Hampafält med täta hampaplantor"
+                className="w-full h-48 object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "data:image/svg+xml,%3Csvg width='400' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='%23dcf2dc'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='16' fill='%233b9b3b'%3EHampafält%3C/text%3E%3C/svg%3E";
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-hemp-900/20 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <p className="text-sm font-medium">Industrihampa i Sverige</p>
+              </div>
+            </div>
           </div>
 
           {/* Facts Cards */}
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-red-400 p-6 rounded-lg">
+            <div className="bg-gradient-to-br from-red-50 to-red-100 border-red-400 p-6 rounded-lg">
               <div className="flex items-start space-x-3">
                 <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
                 <div>
