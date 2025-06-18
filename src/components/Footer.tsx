@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Mail, MapPin, Heart } from 'lucide-react';
+import { Mail, MapPin, Heart, Github } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -27,9 +27,6 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-hemp-600 rounded-full flex items-center justify-center">
-                <Leaf className="w-6 h-6 text-white" />
-              </div>
               <div>
                 <h3 className="text-xl font-bold">Hampaoasen</h3>
                 <p className="text-hemp-300 text-sm">Hampa & Biologisk Mångfald</p>
@@ -52,6 +49,17 @@ const Footer: React.FC = () => {
               <div className="flex items-center space-x-2 text-hemp-200">
                 <MapPin className="w-4 h-4 text-hemp-400" />
                 <span>Sverige</span>
+              </div>
+              <div className="flex items-center space-x-2 text-hemp-200">
+                <Github className="w-4 h-4 text-hemp-400" />
+                <a 
+                  href="https://github.com/wlinds/hampa-web"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  Öppen källkod
+                </a>
               </div>
             </div>
           </div>
@@ -103,7 +111,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-hemp-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-hemp-300 text-sm mb-4 md:mb-0">
-              © {currentYear} Hampaoasen. Alla rättigheter förbehållna.
+              © {currentYear} Hampaoasen. Koden är licencerad under <a href="https://opensource.org/license/mit" className="underline">MIT</a>. 
             </div>
             <div className="flex items-center space-x-1 text-hemp-300 text-sm">
               <span>Gjord med</span>
@@ -116,7 +124,7 @@ const Footer: React.FC = () => {
           <div className="mt-6 p-4 bg-hemp-700 rounded-lg">
             <p className="text-hemp-200 text-xs leading-relaxed">
               <strong>Viktig information:</strong> Hampan vi odlar är industrihampa (Cannabis Sativa) med låg THC-halt (&lt;0.2%) 
-              och är godkänd för laglig odling inom EU. Hampan ger inget rus och klassas inte som en drog. 
+              och är godkänd för laglig odling inom EU. Hampan ger inget rus och klassas inte som en drog.<br />
               All odling sker enligt gällande SAM-ansökningar och regelverk.
             </p>
           </div>
