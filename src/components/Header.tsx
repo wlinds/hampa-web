@@ -48,7 +48,7 @@ const Header: React.FC = () => {
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <img
-              src="/logo.svg"
+              src="/logo.png"
               alt="Hampaoasen Logo"
               className="w-12 h-12 object-contain"
               onError={(e) => {
