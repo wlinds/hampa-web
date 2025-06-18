@@ -3,7 +3,7 @@ import { ArrowRight, Leaf, TreePine, Users } from 'lucide-react';
 
 const HeroSection: React.FC = () => {
   return (
-    <section id="hero" className="relative min-h-screen flex items-center bg-gradient-to-br from-hemp-50 via-white to-hemp-100 overflow-hidden">
+    <section id="hero" className="relative pt-10 md:pt-0 min-h-screen flex items-center md:items-start md:pt-32 bg-gradient-to-br from-hemp-50 via-white to-hemp-100 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-32 h-32 bg-hemp-200 rounded-full animate-float"></div>
@@ -14,7 +14,7 @@ const HeroSection: React.FC = () => {
       <div className="container-max section-padding relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <div className="space-y-8 animate-slide-up">
+          <div className="space-y-8 animate-slide-up mt-12 md:mt-0 md:-mt-6">
             <div className="space-y-4">
               <div className="inline-flex items-center space-x-2 bg-hemp-100 text-hemp-700 px-4 py-2 rounded-full text-sm font-medium">
                 <Leaf className="w-4 h-4" />
@@ -105,7 +105,7 @@ const HeroSection: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-hemp-900">Industrihampa</h3>
-                    <p className="text-sm text-hemp-600">Cannabis Sativa-Fionla </p>
+                    <p className="text-sm text-hemp-600">Cannabis Sativa-Finola </p>
                   </div>
                 </div>
               </div>
