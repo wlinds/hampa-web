@@ -33,27 +33,6 @@ npm install
 npm run dev
 ```
 
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── sections/           # Page sections
-│   │   ├── HeroSection.tsx
-│   │   ├── ServicesSection.tsx
-│   │   ├── AboutHempSection.tsx
-│   │   ├── BenefitsSection.tsx
-│   │   └── ContactSection.tsx
-│   ├── Header.tsx          # Navigation header
-│   └── Footer.tsx          # Site footer
-├── pages/
-│   └── LandingPage.tsx     # Main landing page
-├── App.tsx                 # Main app component
-├── main.tsx                # App entry point
-└── index.css               # Global styles
-```
-
 ## 🔧 Configuration
 
 The project includes pre-configured:
