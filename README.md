@@ -2,9 +2,14 @@
 
 A modern, responsive website for Hampaoasen - specialists in hemp cultivation and biodiversity in Sweden.
 
+
+![alt text](public/screenshot.png)
+
 ## 🌱 About
 
 Hampaoasen provides services for hemp cultivation, biodiversity consulting, and sustainable green space management to private landlords, municipalities, and housing cooperatives across Sweden.
+
+**[hampaoasen.se](https://hampaoasen.se)**
 
 ## Tech Stack
 
@@ -14,24 +19,6 @@ Hampaoasen provides services for hemp cultivation, biodiversity consulting, and 
 - **Icons**: Lucide React
 - **Animations**: Framer Motion
 - **Routing**: React Router DOM
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd hampaoasen-website
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
 
 ## 🔧 Configuration
 
@@ -49,8 +36,22 @@ For questions about this website, contact Hampaoasen at:
 
 ## License
 
-This project is proprietary to Hampaoasen.
+This project is open source under the MIT License. 
+
+MIT License gives anyone the freedom to:
+- Use, copy, modify, merge, publish, distribute the code
+- Use for private or commercial purposes
+- Sublicense
+
+The only requirements are:
+- Include the original copyright notice
+- Include a copy of the license
+
+See [LICENSE](LICENSE) file for full terms.
+
+Hampaoasen retains all rights to the Hampaoasen brand, trademarks, and proprietary business content.
 
 ---
+
 
 *Built with sustainability in mind, just like hemp cultivation! 🌱*
