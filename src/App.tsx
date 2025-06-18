@@ -7,7 +7,7 @@ import './index.css';
 
 const App: React.FC = () => {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen bg-gradient-to-b from-hemp-50 to-white">
         <Header />
         <main>
