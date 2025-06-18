@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { Mail, MapPin, Send, CheckCircle, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, MapPin, Send, CheckCircle, MessageSquare, AlertCircle } from 'lucide-react';
+
+// Global grecaptcha for v3
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
 
 const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,14 +18,124 @@ const ContactSection: React.FC = () => {
     area: '',
     message: ''
   });
+  
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+    
+    if (!siteKey || siteKey === 'undefined' || siteKey === '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI') {
+      console.warn('reCAPTCHA site key not configured or using test key');
+      setRecaptchaLoaded(false);
+      return;
+    }
+
+    if (window.grecaptcha) {
+      setRecaptchaLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+    script.async = true;
+    script.defer = true;
+    
+    script.onload = () => {
+      window.grecaptcha.ready(() => {
+        setRecaptchaLoaded(true);
+      });
+    };
+    
+    document.head.appendChild(script);
+
+    return () => {
+      const existingScript = document.querySelector('script[src*="recaptcha"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here we would typically send the form data to our backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
+    setError('');
+    setIsLoading(true);
+
+    try {
+      let recaptchaToken = '';
+      
+      // Get reCAPTCHA token if available
+      if (recaptchaLoaded && window.grecaptcha) {
+        const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+        if (siteKey && siteKey !== 'undefined' && siteKey !== '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI') {
+          try {
+            recaptchaToken = await window.grecaptcha.execute(siteKey, { action: 'submit_contact' });
+            console.log('reCAPTCHA token obtained');
+          } catch (recaptchaError) {
+            console.warn('reCAPTCHA failed:', recaptchaError);
+          }
+        }
+      }
+
+      // Send form data to backend
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          recaptchaToken
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = 'Ett fel uppstod när meddelandet skulle skickas.';
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If it's not JSON, handle common HTTP errors
+          if (response.status === 404) {
+            errorMessage = 'API-endpoint hittades inte. Kontakta oss direkt på hampaoasen@gmail.com';
+          } else if (response.status === 500) {
+            errorMessage = 'Serverfel: E-posttjänsten är temporärt otillgänglig. Försök igen senare.';
+          } else {
+            errorMessage = `HTTP ${response.status}: ${errorText}`;
+          }
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Success response
+      const result = await response.json();
+      console.log('Form submitted successfully:', result);
+
+      setIsSubmitted(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        service: '',
+        area: '',
+        message: ''
+      });
+      
+      setTimeout(() => setIsSubmitted(false), 5000);
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setError(error instanceof Error ? error.message : 'Ett fel uppstod när meddelandet skulle skickas. Försök igen eller kontakta oss direkt på hampaoasen@gmail.com');
+    }
+
+    setIsLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -26,6 +143,9 @@ const ContactSection: React.FC = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const services = [
@@ -157,6 +277,21 @@ const ContactSection: React.FC = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
+                      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-red-700 text-sm">
+                        <p>{error}</p>
+                        <p className="mt-2 font-medium">
+                          Du kan alltid kontakta oss direkt på:{' '}
+                          <a href="mailto:hampaoasen@gmail.com" className="underline">
+                            hampaoasen@gmail.com
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-hemp-900 mb-2">
@@ -259,12 +394,13 @@ const ContactSection: React.FC = () => {
 
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-hemp-900 mb-2">
-                      Meddelande
+                      Meddelande *
                     </label>
                     <textarea
                       id="message"
                       name="message"
                       rows={5}
+                      required
                       value={formData.message}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-hemp-200 rounded-lg focus:ring-2 focus:ring-hemp-500 focus:border-transparent transition-all duration-200 resize-vertical"
@@ -272,15 +408,31 @@ const ContactSection: React.FC = () => {
                     ></textarea>
                   </div>
 
+                  {/* reCAPTCHA Info */}
+                  {recaptchaLoaded && (
+                    <div className="text-xs text-hemp-600 text-center">
+                      Denna sida är skyddad av reCAPTCHA och Googles{' '}
+                      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">
+                        integritetspolicy
+                      </a>{' '}
+                      och{' '}
+                      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">
+                        användarvillkor
+                      </a>{' '}
+                      gäller.
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-hemp-600">
                       * Obligatoriska fält
                     </p>
                     <button
                       type="submit"
-                      className="btn-primary inline-flex items-center"
+                      disabled={isLoading}
+                      className="btn-primary inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Skicka meddelande
+                      {isLoading ? 'Skickar...' : 'Skicka meddelande'}
                       <Send className="w-4 h-4 ml-2" />
                     </button>
                   </div>
