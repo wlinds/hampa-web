@@ -1,0 +1,14 @@
+name: hampaoasen-website
+services:
+  - name: backend
+    environment_slug: node-js
+    github:
+      repo: wlinds/HampaOasen
+      branch: main
+      deploy_on_push: true
+    build_command: npm install && npm run build
+    run_command: npm start
+    envs:
+      - key: NODE_ENV
+        value: production
+    http_port: 8080
