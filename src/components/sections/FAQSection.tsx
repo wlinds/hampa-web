@@ -36,7 +36,7 @@ const FAQSection: React.FC = () => {
         },
         {
           question: 'Vad är skillnaden mellan industrihampa och marijuana?',
-          answer: 'Industrihampa och marijuana är samma art (Cannabis Sativa) men olika sorter. Industrihampa innehåller mycket låga halter THC (<0,2%) och ger inget rus. Den odlas för fiber, frön och ekosystemtjänster, inte för berusning.'
+          answer: 'Industrihampa och marijuana är samma art (Cannabis Sativa) men olika sorter. Industrihampa innehåller mycket låga halter THC (<0.3%) och ger inget rus. Den odlas för fiber, frön och ekosystemtjänster, inte för berusning.'
         },
         {
           question: 'När sår man hampan?',

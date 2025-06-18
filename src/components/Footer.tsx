@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
           {/* Disclaimer */}
           <div className="mt-6 p-4 bg-hemp-700 rounded-lg">
             <p className="text-hemp-200 text-xs leading-relaxed">
-              <strong>Viktig information:</strong> Hampan vi odlar är industrihampa (Cannabis Sativa) med låg THC-halt (&lt;0.2%) 
+              <strong>Viktig information:</strong> Hampan vi odlar är industrihampa (Cannabis Sativa) med låg THC-halt (&lt;0.3%) 
               och är godkänd för laglig odling inom EU. Hampan ger inget rus och klassas inte som en drog.<br />
               All odling sker enligt gällande SAM-ansökningar och regelverk.
             </p>

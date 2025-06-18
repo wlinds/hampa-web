@@ -14,7 +14,7 @@ const BenefitsSection: React.FC = () => {
       icon: Bug,
       title: 'Pollination',
       value: 'Stor mängd',
-      description: 'pollen och nektar för bin och andra pollinatörer',
+      description: 'pollen som främjar vitalitet hos pollinatörer',
       color: 'from-yellow-500 to-orange-500'
     },
     {

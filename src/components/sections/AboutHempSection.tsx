@@ -9,14 +9,14 @@ const AboutHempSection: React.FC = () => {
       description: 'Hampa har varit en del av svensk jordbrukshistoria i över 3000 år.'
     },
     {
-      period: '1966 - 1995',
+      period: '1966 - 2003',
       title: 'Odlingsförbud',
-      description: 'Hampakultivering förbjöds i Sverige under denna period.'
+      description: '1966 drogs det statliga bidraget till Sveriges hampabönder in.'
     },
     {
-      period: '1995 - Idag',
+      period: '2003 - Idag',
       title: 'Återstart genom EU-inträde',
-      description: 'Laglig industrihampakultivering började igen när Sverige gick med i EU.'
+      description: '2003 vann Sveriges hampabönder i rättsfall med stöd av EU-lagstiftning kring hampa.'
     }
   ];
 
@@ -30,14 +30,14 @@ const AboutHempSection: React.FC = () => {
     {
       icon: Shield,
       title: 'Laglig odling',
-      description: 'Godkända sorter med låg THC-halt (<0.2%)',
+      description: 'Godkända sorter med låg THC-halt (<0.3%)',
       highlight: 'SAM-ansökan krävs'
     },
     {
       icon: Calendar,
-      title: 'Snabb tillväxt',
-      description: 'Växer från frö till 3-4 meter på en säsong',
-      highlight: '120 dagar cykel'
+      title: 'Hög koldioxidbindning',
+      description: 'Mellan 9 och 15 ton CO₂',
+      highlight: 'Kolbindning per säsong'
     }
   ];
 
