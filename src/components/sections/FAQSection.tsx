@@ -87,7 +87,7 @@ const FAQSection: React.FC = () => {
         },
         {
           question: 'Arbetar ni över hela Sverige?',
-          answer: 'Ja, vi arbetar över hela Sverige. Vi anpassar våra tjänster efter lokala förhållanden och regelverk. Kontakta oss oavsett var i landet ni befinner er.'
+          answer: 'Vi är verksamma i Västra Götaland, Bohuslän och Halland.'
         }
       ]
     },

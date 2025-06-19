@@ -35,17 +35,18 @@ const HeroSection: React.FC = () => {
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center p-4 bg-white/60 backdrop-blur rounded-lg">
                 <div className="text-2xl font-bold text-hemp-800">9-15</div>
-                <div className="text-sm font-medium text-hemp-700 mb-1">ton CO₂/hektar</div>
-                <div className="text-xs text-hemp-600">Kolbindning per säsong</div>
+                <div className="text-sm font-medium text-hemp-700 mb-1">Ton CO₂/hektar</div>
+                <div className="text-xs text-hemp-600">kolbindning per säsong</div>
               </div>
               <div className="text-center p-4 bg-white/60 backdrop-blur rounded-lg">
                 <div className="text-2xl font-bold text-hemp-800">120</div>
-                <div className="text-sm font-medium text-hemp-700 mb-1">dagar tillväxt</div>
-                <div className="text-xs text-hemp-600">Från frö till skörd</div>
+                <div className="text-sm font-medium text-hemp-700 mb-1">Dagar tillväxt</div>
+                <div className="text-xs text-hemp-600">från frö till skörd</div>
               </div>
               <div className="text-center p-4 bg-white/60 backdrop-blur rounded-lg">
                 <div className="text-2xl font-bold text-hemp-800">100%</div>
-                <div className="text-sm font-medium text-hemp-700 mb-1">ekologiskt</div>
+                <div className="text-sm font-medium text-hemp-700 mb-1">Ekologiskt</div>
+                <div className="text-xs text-hemp-600">odlad hampa</div>
               </div>
             </div>
 
