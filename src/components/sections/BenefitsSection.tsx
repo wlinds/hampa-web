@@ -102,7 +102,7 @@ const BenefitsSection: React.FC = () => {
               <p className="text-hemp-100 text-lg leading-relaxed mb-6">
                 Hampa bidrar med väldigt höga värden av ekosystemtjänster och ökad hälsa hos pollinatörspopulationer. Biologisk mångfald är avgörande för fungerande ekosystem.
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {ecosystemServices.map((service, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-hemp-300 rounded-full flex-shrink-0"></div>
