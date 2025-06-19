@@ -139,7 +139,7 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: 'Meddelandet har skickats! Vi återkommer till dig inom kort!' 
+      message: 'Meddelandet har skickats! Vi återkommer inom 24 timmar.' 
     });
 
   } catch (error) {
