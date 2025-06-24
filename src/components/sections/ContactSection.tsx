@@ -411,7 +411,7 @@ const ContactSection: React.FC = () => {
                   {/* reCAPTCHA Info */}
                   {recaptchaLoaded && (
                     <div className="text-xs text-hemp-600 text-center">
-                      Denna sida är skyddad av reCAPTCHA och Googles{' '}
+                      Detta formulär är skyddad av reCAPTCHA och Googles{' '}
                       <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">
                         integritetspolicy
                       </a>{' '}

@@ -6,7 +6,7 @@
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.6;
@@ -77,4 +77,35 @@
       line-height: 1.5rem !important; /* 24px */
     }
   }
+
+.grecaptcha-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+div[class*="grecaptcha-badge"] {
+  display: none !important;
+}
+
+iframe[src*="recaptcha/api2/anchor"] {
+  display: none !important;
+}
+
+iframe[src*="recaptcha/enterprise/anchor"] {
+  display: none !important;
+}
+
+div[style*="width: 256px; height: 60px"] {
+  display: none !important;
+}
+
+div[style*="position: fixed; bottom"] {
+  display: none !important;
+}
+
+iframe[title="reCAPTCHA"] {
+  display: none !important;
+}
+  
 }
