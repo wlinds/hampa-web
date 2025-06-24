@@ -51,4 +51,30 @@
   .animation-delay-600 {
     animation-delay: 600ms;
   }
+  
+  /* Mobile text handling utilities */
+  .break-words {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .hyphens-auto {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+  }
+  
+  /* Ensure text doesn't overflow on very small screens */
+  @media (max-width: 374px) {
+    .text-responsive-sm {
+      font-size: 0.875rem !important; /* 14px */
+      line-height: 1.25rem !important; /* 20px */
+    }
+    
+    .text-responsive-lg {
+      font-size: 1.125rem !important; /* 18px */
+      line-height: 1.5rem !important; /* 24px */
+    }
+  }
 }

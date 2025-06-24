@@ -93,41 +93,41 @@ const BenefitsSection: React.FC = () => {
         </div>
 
         {/* Ecosystem Services */}
-        <div className="bg-gradient-to-r from-hemp-600 to-hemp-700 rounded-2xl p-8 md:p-12 text-white">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="text-2xl md:text-3xl font-bold mb-6">
-                Ekosystemtjänster
-              </h3>
-              <p className="text-hemp-100 text-lg leading-relaxed mb-6">
-                Hampa bidrar med väldigt höga värden av ekosystemtjänster och ökad hälsa hos pollinatörspopulationer. Biologisk mångfald är avgörande för fungerande ekosystem.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {ecosystemServices.map((service, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-hemp-300 rounded-full flex-shrink-0"></div>
-                    <span className="text-hemp-100 text-sm">{service}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="bg-gradient-to-r from-hemp-600 to-hemp-700 rounded-2xl p-4 sm:p-6 md:p-8 lg:p-12 text-white">
+           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+             <div>
+               <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 break-words hyphens-auto">
+                 Ekosystemtjänster
+               </h3>
+               <p className="text-hemp-100 text-base sm:text-lg leading-relaxed mb-4 sm:mb-6">
+                 Hampa bidrar med väldigt höga värden av ekosystemtjänster och ökad hälsa hos pollinatörspopulationer. Biologisk mångfald är avgörande för fungerande ekosystem.
+               </p>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                 {ecosystemServices.map((service, index) => (
+                   <div key={index} className="flex items-center space-x-2">
+                     <div className="w-2 h-2 bg-hemp-300 rounded-full flex-shrink-0"></div>
+                     <span className="text-hemp-100 text-sm sm:text-base break-words">{service}</span>
+                   </div>
+                 ))}
+               </div>
+             </div>
 
-            <div className="relative">
-              <div className="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/20">
-                <h4 className="text-xl font-semibold mb-4">
-                  Varför biologisk mångfald?
-                </h4>
-                <p className="text-hemp-100 leading-relaxed">
-                  Biologisk mångfald är avgörande för fungerande ekosystem som ger oss rena resurser såsom luft, vatten och mat. Den stärker också naturens motståndskraft mot kriser och bidrar till en hållbar och hanterbar framtid.
-                </p>
-              </div>
-              
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-hemp-400 rounded-full opacity-20 animate-float"></div>
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-hemp-300 rounded-full opacity-30 animate-float animation-delay-400"></div>
-            </div>
-          </div>
-        </div>
+             <div className="relative">
+               <div className="bg-white/10 backdrop-blur rounded-xl p-4 sm:p-6 border border-white/20">
+                 <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 break-words">
+                   Varför biologisk mångfald?
+                 </h4>
+                 <p className="text-hemp-100 text-sm sm:text-base leading-relaxed">
+                   Biologisk mångfald är avgörande för fungerande ekosystem som ger oss rena resurser såsom luft, vatten och mat. Den stärker också naturens motståndskraft mot kriser och bidrar till en hållbar och hanterbar framtid.
+                 </p>
+               </div>
+               
+               {/* Decorative elements */}
+               <div className="absolute -top-2 sm:-top-4 -right-2 sm:-right-4 w-16 sm:w-20 h-16 sm:h-20 bg-hemp-400 rounded-full opacity-20 animate-float"></div>
+               <div className="absolute -bottom-2 sm:-bottom-4 -left-2 sm:-left-4 w-12 sm:w-16 h-12 sm:h-16 bg-hemp-300 rounded-full opacity-30 animate-float animation-delay-400"></div>
+             </div>
+           </div>
+         </div>
 
         {/* CTA Section */}
         <div className="text-center mt-16">
