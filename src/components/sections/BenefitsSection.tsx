@@ -135,7 +135,7 @@ const BenefitsSection: React.FC = () => {
             Redo att bidra till en hållbar framtid?
           </h3>
           <p className="text-hemp-700 mb-8 max-w-2xl mx-auto">
-            Kontakta oss för en kostnadsfri konsultation och upptäck hur hampa kan förvandla era grönytor till en oas av biologisk mångfald.
+            Kontakta oss för en kostnadsfri konsultation.
           </p>
           <a
             href="#contact"

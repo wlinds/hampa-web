@@ -28,7 +28,7 @@ const ServicesSection: React.FC = () => {
       icon: BookOpen,
       title: 'Grönyteskötsel utifrån biologisk mångfald',
       description: 'Genom ekologisk grönyteskötselmetod och främjandet av diversiteten kring inhemska arter ökar vi den biologiska mångfalden på er yta samtidigt som vi tar hänsyn till en vacker estetik.',
-      features: ['Vi förvandlar eftersatta grönytor till en oas av biologisk mångfald.'],
+      features: ['Vi förvandlar eftersatta grönytor.'],
       color: 'earth'
     }
   ];
