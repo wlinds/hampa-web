@@ -110,30 +110,51 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
     }
 
     // Single query to get or create profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: existingProfile, error: selectError } = await supabase
       .from('profiles')
-      .upsert({
-        id: user.id,
-        email: user.email!,
-        full_name: user.user_metadata?.full_name || null,
-        role: 'user',
-        approved: false,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'id',
-        ignoreDuplicates: false
-      })
-      .select()
+      .select('*')
+      .eq('id', user.id)
       .single();
 
-    if (profileError) {
-      console.error('Profile upsert error:', profileError);
-      // Return user without profile if profile operations fail
+    if (selectError && selectError.code !== 'PGRST116') {
+      // Error other than "not found"
+      console.error('Error fetching profile:', selectError);
       return {
         id: user.id,
         email: user.email!,
         profile: undefined
       };
+    }
+
+    let profile = existingProfile;
+
+    // fix: Only create profile if it doesn't exist
+    if (!existingProfile) {
+      console.log('Profile not found, creating new profile...');
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email!,
+          full_name: user.user_metadata?.full_name || null,
+          role: 'user',
+          approved: false // Only set to false for NEW profiles
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Profile creation error:', insertError);
+        return {
+          id: user.id,
+          email: user.email!,
+          profile: undefined
+        };
+      }
+
+      profile = newProfile;
+    } else {
+      console.log('Existing profile found, preserving approval status:', existingProfile.approved);
     }
 
     // Cache the profile
