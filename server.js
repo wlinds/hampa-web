@@ -3,6 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
+import fs from 'fs';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,6 +15,49 @@ const port = process.env.PORT || 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Determine the correct directory for images based on environment
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const blogImagesDir = isDevelopment 
+  ? path.join(__dirname, 'public', 'blog-images')  // Development: save to public
+  : path.join(__dirname, 'dist', 'blog-images');   // Production: save to dist
+
+console.log(`Environment: ${isDevelopment ? 'development' : 'production'}`);
+console.log(`Images will be saved to: ${blogImagesDir}`);
+
+// Ensure blog-images directory exists
+if (!fs.existsSync(blogImagesDir)) {
+  fs.mkdirSync(blogImagesDir, { recursive: true });
+  console.log(`Created directory: ${blogImagesDir}`);
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, blogImagesDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, `${uniqueSuffix}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Only allow image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -22,6 +67,13 @@ const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 3, // limit each IP to 3 requests per windowMs
   message: { error: 'För många förfrågningar. Försök igen om 15 minuter.' }
+});
+
+// Rate limiting for image uploads
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 uploads per windowMs
+  message: { error: 'För många bilduppladdningar. Försök igen om 15 minuter.' }
 });
 
 // reCAPTCHA verification function
@@ -58,7 +110,7 @@ async function verifyRecaptcha(token) {
 
 // Email transporter setup
 const createTransporter = () => {
-  return nodemailer.createTransport({
+  return nodemailer.createTransporter({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER,
@@ -66,6 +118,33 @@ const createTransporter = () => {
     }
   });
 };
+
+// Image upload endpoint
+app.post('/api/upload-image', uploadLimiter, upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Ingen fil uppladdad' });
+    }
+
+    console.log(`Image uploaded: ${req.file.filename} to ${req.file.path}`);
+
+    // Return the public URL for the uploaded image
+    const imageUrl = `/blog-images/${req.file.filename}`;
+    
+    res.json({ 
+      success: true, 
+      imageUrl: imageUrl,
+      filename: req.file.filename,
+      savedTo: req.file.path
+    });
+
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ 
+      error: 'Fel vid uppladdning av bild' 
+    });
+  }
+});
 
 // Contact form endpoint
 app.post('/api/contact', contactLimiter, async (req, res) => {
@@ -89,11 +168,6 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
       });
     }
 
-    // console.log('NODE_ENV:', process.env.NODE_ENV);
-    // console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-    // console.log('EMAIL_APP_PASSWORD:', process.env.EMAIL_APP_PASSWORD ? 'SET' : 'NOT SET');
-    // console.log('EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
-    
     const emailConfigured = process.env.EMAIL_USER && 
                            process.env.EMAIL_APP_PASSWORD;
     
@@ -148,6 +222,22 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
       error: 'Ett fel uppstod när meddelandet skulle skickas. Försök igen eller kontakta oss direkt på hampaoasen@gmail.com' 
     });
   }
+});
+
+// Error handler for multer
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'Filen är för stor. Maximal storlek är 50MB.' });
+    }
+    return res.status(400).json({ error: 'Fel vid filuppladdning' });
+  }
+  
+  if (error.message === 'Only image files are allowed') {
+    return res.status(400).json({ error: 'Endast bildfiler är tillåtna' });
+  }
+  
+  next(error);
 });
 
 // Serve React app for all other routes
