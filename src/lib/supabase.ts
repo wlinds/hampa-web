@@ -1,4 +1,4 @@
-// src/lib/supabase.ts (Updated - No BlogImage interface)
+// src/lib/supabase.ts 
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -33,7 +33,7 @@ export interface BlogPost {
   slug: string;
   content: string;
   excerpt: string | null;
-  featured_image: string | null; // Just a URL/path string
+  featured_image: string | null;
   status: 'draft' | 'published';
   meta_title: string | null;
   meta_description: string | null;
@@ -44,7 +44,19 @@ export interface BlogPost {
   author?: Profile;
 }
 
-// Removed BlogImage interface - not needed anymore
+// Add partial type for user posts list
+export interface BlogPostSummary {
+  id: string;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published';
+  updated_at: string;
+  published_at: string | null;
+  author?: {
+    full_name: string | null;
+    email: string;
+  };
+}
 
 export interface AuthUser {
   id: string;
@@ -74,7 +86,11 @@ export const formatDate = (dateString: string): string => {
   });
 };
 
-// Auth helpers
+// Cache for user profiles to reduce DB calls
+const profileCache = new Map<string, { profile: Profile; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Much more efficient getCurrentUser
 export const getCurrentUser = async (): Promise<AuthUser | null> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -82,52 +98,51 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
     
     if (!user) return null;
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    console.log('getCurrentUser - Profile data:', { profile, error: profileError });
-
-    // If profile doesn't exist, create it
-    if (profileError && profileError.code === 'PGRST116') {
-      console.log('Profile not found, creating...');
-      
-      const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert([{
-          id: user.id,
-          email: user.email!,
-          full_name: user.user_metadata?.full_name || null,
-          role: 'user',
-          approved: false
-        }])
-        .select()
-        .single();
-
-      console.log('Profile creation result:', { newProfile, error: createError });
-
+    // Check cache first
+    const cached = profileCache.get(user.id);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      console.log('getCurrentUser - Using cached profile');
       return {
         id: user.id,
         email: user.email!,
-        profile: newProfile || {
-          id: user.id,
-          email: user.email!,
-          full_name: user.user_metadata?.full_name || null,
-          avatar_url: null,
-          role: 'user',
-          approved: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
+        profile: cached.profile
       };
     }
+
+    // Single query to get or create profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        email: user.email!,
+        full_name: user.user_metadata?.full_name || null,
+        role: 'user',
+        approved: false,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'id',
+        ignoreDuplicates: false
+      })
+      .select()
+      .single();
+
+    if (profileError) {
+      console.error('Profile upsert error:', profileError);
+      // Return user without profile if profile operations fail
+      return {
+        id: user.id,
+        email: user.email!,
+        profile: undefined
+      };
+    }
+
+    // Cache the profile
+    profileCache.set(user.id, { profile, timestamp: Date.now() });
 
     return {
       id: user.id,
       email: user.email!,
-      profile: profile || undefined
+      profile
     };
   } catch (error) {
     console.error('getCurrentUser error:', error);
@@ -135,6 +150,12 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
   }
 };
 
+// Clear profile cache when user signs out
+export const clearProfileCache = () => {
+  profileCache.clear();
+};
+
+// Auth helpers (unchanged but with cache clearing)
 export const signUp = async (email: string, password: string, fullName: string) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -159,92 +180,189 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signOut = async () => {
+  clearProfileCache(); // Clear cache on sign out
   const { error } = await supabase.auth.signOut();
   return { error };
 };
 
-// Blog helpers
-export const getPublishedPosts = async (): Promise<BlogPost[]> => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select(`
-      *,
-      author:profiles(*)
-    `)
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
+// Simple cache for blog posts
+const blogCache = new Map<string, { data: any; timestamp: number }>();
+const BLOG_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for blog posts
 
-  if (error) throw error;
-  return data || [];
+// More efficient blog queries with caching
+export const getPublishedPosts = async (): Promise<BlogPost[]> => {
+  const cacheKey = 'published_posts';
+  const cached = blogCache.get(cacheKey);
+  
+  if (cached && Date.now() - cached.timestamp < BLOG_CACHE_DURATION) {
+    console.log('Using cached published posts');
+    return cached.data;
+  }
+
+  try {
+    // 🔧 FIX: Select all required fields to match BlogPost type
+    const { data: posts, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        author:profiles!blog_posts_author_id_fkey(full_name, email)
+      `)
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(50); // Limit results to prevent large queries
+
+    if (error) {
+      console.error('Error fetching published posts:', error);
+      throw error;
+    }
+
+    const result = posts || [];
+    blogCache.set(cacheKey, { data: result, timestamp: Date.now() });
+    
+    return result;
+  } catch (error) {
+    console.error('getPublishedPosts error:', error);
+    throw error;
+  }
 };
 
 export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select(`
-      *,
-      author:profiles(*)
-    `)
-    .eq('slug', slug)
-    .single();
+  const cacheKey = `post_${slug}`;
+  const cached = blogCache.get(cacheKey);
+  
+  if (cached && Date.now() - cached.timestamp < BLOG_CACHE_DURATION) {
+    console.log(`Using cached post: ${slug}`);
+    return cached.data;
+  }
 
-  if (error) return null;
-  return data;
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        *,
+        author:profiles(*)
+      `)
+      .eq('slug', slug)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null; // Post not found
+      }
+      throw error;
+    }
+
+    blogCache.set(cacheKey, { data, timestamp: Date.now() });
+    return data;
+  } catch (error) {
+    console.error('getPostBySlug error:', error);
+    return null;
+  }
 };
 
-export const getUserPosts = async (userId: string): Promise<BlogPost[]> => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select(`
-      *,
-      author:profiles(*)
-    `)
-    .eq('author_id', userId)
-    .order('updated_at', { ascending: false });
+// Clear blog cache when posts are modified
+export const clearBlogCache = () => {
+  Array.from(blogCache.keys()).forEach(key => {
+    if (key.startsWith('published_posts') || key.startsWith('post_')) {
+      blogCache.delete(key);
+    }
+  });
+};
 
-  if (error) throw error;
-  return data || [];
+export const getUserPosts = async (userId: string): Promise<BlogPostSummary[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(`
+        id, title, slug, status, updated_at, published_at,
+        profiles!blog_posts_author_id_fkey(full_name, email)
+      `)
+      .eq('author_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Transform the data to match BlogPostSummary type
+    const transformedData = (data as any[])?.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      status: post.status,
+      updated_at: post.updated_at,
+      published_at: post.published_at,
+      author: post.profiles && post.profiles[0] ? {
+        full_name: post.profiles[0].full_name,
+        email: post.profiles[0].email
+      } : undefined
+    })) || [];
+
+    return transformedData;
+  } catch (error) {
+    console.error('getUserPosts error:', error);
+    throw error;
+  }
 };
 
 export const createPost = async (post: Partial<BlogPost>): Promise<BlogPost> => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert([post])
-    .select(`
-      *,
-      author:profiles(*)
-    `)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert([post])
+      .select(`
+        *,
+        author:profiles(*)
+      `)
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    
+    clearBlogCache(); // Clear cache when creating new post
+    return data;
+  } catch (error) {
+    console.error('createPost error:', error);
+    throw error;
+  }
 };
 
 export const updatePost = async (id: string, updates: Partial<BlogPost>): Promise<BlogPost> => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .update(updates)
-    .eq('id', id)
-    .select(`
-      *,
-      author:profiles(*)
-    `)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .update(updates)
+      .eq('id', id)
+      .select(`
+        *,
+        author:profiles(*)
+      `)
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    
+    clearBlogCache(); // Clear cache when updating post
+    return data;
+  } catch (error) {
+    console.error('updatePost error:', error);
+    throw error;
+  }
 };
 
 export const deletePost = async (id: string): Promise<void> => {
-  const { error } = await supabase
-    .from('blog_posts')
-    .delete()
-    .eq('id', id);
+  try {
+    const { error } = await supabase
+      .from('blog_posts')
+      .delete()
+      .eq('id', id);
 
-  if (error) throw error;
+    if (error) throw error;
+    
+    clearBlogCache(); // Clear cache when deleting post
+  } catch (error) {
+    console.error('deletePost error:', error);
+    throw error;
+  }
 };
 
-// Image upload helper - uploads to local server
+// Image upload helper (unchanged)
 export const uploadImage = async (file: File, userId: string): Promise<string> => {
   const formData = new FormData();
   formData.append('image', file);
@@ -295,7 +413,7 @@ export const uploadImage = async (file: File, userId: string): Promise<string> =
   }
 };
 
-// Admin helpers
+// Admin helpers (unchanged)
 export const getPendingUsers = async (): Promise<Profile[]> => {
   const { data, error } = await supabase
     .from('profiles')
@@ -314,6 +432,9 @@ export const approveUser = async (userId: string): Promise<void> => {
     .eq('id', userId);
 
   if (error) throw error;
+  
+  // Clear profile cache for this user
+  profileCache.delete(userId);
 };
 
 export const updateUserRole = async (userId: string, role: 'user' | 'admin'): Promise<void> => {
@@ -323,4 +444,7 @@ export const updateUserRole = async (userId: string, role: 'user' | 'admin'): Pr
     .eq('id', userId);
 
   if (error) throw error;
+  
+  // Clear profile cache for this user
+  profileCache.delete(userId);
 };
