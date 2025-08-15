@@ -1,7 +1,7 @@
 // src/pages/BlogListPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, User, ArrowRight, Edit, Plus } from 'lucide-react';
+import { Calendar, User, ArrowRight, Edit, Plus, AlertCircle, RefreshCw } from 'lucide-react';
 import { BlogPost, getPublishedPosts, formatDate } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,28 +9,122 @@ const BlogListPage: React.FC = () => {
   const { user } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Memoize user check to prevent unnecessary re-renders
+  const canCreatePosts = useMemo(() => 
+    user?.profile?.approved, 
+    [user?.profile?.approved]
+  );
+
+  // Retry logic for failed requests
+  const fetchPosts = async (isRetry = false) => {
+    try {
+      if (!isRetry) {
+        setLoading(true);
+      }
+      setError('');
+      
+      console.log('Fetching published posts...');
+      const publishedPosts = await getPublishedPosts();
+      console.log('Posts loaded successfully:', publishedPosts.length);
+      
+      setPosts(publishedPosts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Ett oväntat fel uppstod vid hämtning av blogginlägg';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Retry mechanism with exponential backoff
+  const handleRetry = () => {
+    const newRetryCount = retryCount + 1;
+    setRetryCount(newRetryCount);
+    
+    // Exponential backoff: 1s, 2s, 4s, 8s
+    const delay = Math.min(1000 * Math.pow(2, newRetryCount - 1), 8000);
+    
+    setTimeout(() => {
+      fetchPosts(true);
+    }, delay);
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const publishedPosts = await getPublishedPosts();
-        setPosts(publishedPosts);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPosts();
   }, []);
 
-  if (loading) {
+  // Error state with retry option
+  if (error && !loading) {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
         <div className="container-max section-padding py-20">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hemp-600"></div>
+          <div className="text-center max-w-md mx-auto">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-hemp-900 mb-2">
+              Problem med att ladda bloggen
+            </h2>
+            <p className="text-hemp-600 mb-6">
+              {error}
+            </p>
+            <button
+              onClick={handleRetry}
+              disabled={loading}
+              className="btn-primary inline-flex items-center disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Försöker igen...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Försök igen
+                </>
+              )}
+            </button>
+            {retryCount > 0 && (
+              <p className="text-xs text-hemp-500 mt-2">
+                Försök {retryCount} av 5
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Better loading state
+  if (loading && posts.length === 0) {
+    return (
+      <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
+        <div className="container-max section-padding py-20">
+          {/* Header skeleton */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="h-12 bg-hemp-100 rounded-lg mb-6 animate-pulse"></div>
+            <div className="h-6 bg-hemp-100 rounded-lg mb-4 animate-pulse"></div>
+            <div className="h-6 bg-hemp-100 rounded-lg w-3/4 mx-auto animate-pulse"></div>
+          </div>
+          
+          {/* Posts skeleton */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white rounded-2xl shadow-lg border border-hemp-100 overflow-hidden">
+                <div className="h-48 bg-hemp-100 animate-pulse"></div>
+                <div className="p-6">
+                  <div className="h-4 bg-hemp-100 rounded mb-3 animate-pulse"></div>
+                  <div className="h-8 bg-hemp-100 rounded mb-3 animate-pulse"></div>
+                  <div className="h-4 bg-hemp-100 rounded mb-4 animate-pulse"></div>
+                  <div className="h-4 bg-hemp-100 rounded w-24 animate-pulse"></div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -50,7 +144,7 @@ const BlogListPage: React.FC = () => {
             tips och nyheter från världen av hampakultivering.
           </p>
           
-          {user?.profile?.approved && (
+          {canCreatePosts && (
             <Link
               to="/blog/new"
               className="inline-flex items-center mt-6 btn-primary"
@@ -74,8 +168,27 @@ const BlogListPage: React.FC = () => {
         ) : (
           <div className="grid lg:grid-cols-2 gap-8">
             {posts.map((post, index) => (
-              <BlogPostCard key={post.id} post={post} featured={index === 0} />
+              <BlogPostCard 
+                key={post.id} 
+                post={post} 
+                featured={index === 0}
+                currentUserId={user?.id}
+              />
             ))}
+          </div>
+        )}
+
+        {/* Refresh button for manual reload */}
+        {posts.length > 0 && (
+          <div className="text-center mt-12">
+            <button
+              onClick={() => fetchPosts(true)}
+              disabled={loading}
+              className="text-hemp-600 hover:text-hemp-800 text-sm font-medium disabled:opacity-50 inline-flex items-center"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              {loading ? 'Uppdaterar...' : 'Uppdatera'}
+            </button>
           </div>
         )}
       </div>
@@ -83,15 +196,19 @@ const BlogListPage: React.FC = () => {
   );
 };
 
-// Blog Post Card Component
+// Memoized blog post card to prevent unnecessary re-renders
 interface BlogPostCardProps {
   post: BlogPost;
   featured?: boolean;
+  currentUserId?: string;
 }
 
-const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, featured = false }) => {
-  const { user } = useAuth();
-  const isAuthor = user?.id === post.author_id;
+const BlogPostCard: React.FC<BlogPostCardProps> = React.memo(({ 
+  post, 
+  featured = false, 
+  currentUserId 
+}) => {
+  const isAuthor = currentUserId === post.author_id;
 
   return (
     <article className={`
@@ -108,6 +225,11 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, featured = false }) =
             src={post.featured_image}
             alt={post.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading={featured ? 'eager' : 'lazy'}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </div>
@@ -174,6 +296,8 @@ const BlogPostCard: React.FC<BlogPostCardProps> = ({ post, featured = false }) =
       </div>
     </article>
   );
-};
+});
+
+BlogPostCard.displayName = 'BlogPostCard';
 
 export default BlogListPage;
