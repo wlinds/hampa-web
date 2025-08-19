@@ -2,13 +2,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, User, ArrowLeft, Edit, Trash2, AlertCircle, RefreshCw } from 'lucide-react';
-import { BlogPost, getPostBySlug, deletePost, formatDate } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+
+// Import types and functions from firebase
+import type { BlogPost } from '../lib/firebase';
+import { getPostBySlug, deletePost, formatDate } from '../lib/firebase';
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -16,13 +20,13 @@ const BlogPostPage: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  //  Memoize author check to prevent unnecessary re-renders
-  const isAuthor = useMemo(() => 
-    user?.id === post?.author_id, 
-    [user?.id, post?.author_id]
-  );
+  // Memoize author check to prevent unnecessary re-renders
+  const isAuthor = useMemo(() => {
+    if (!user?.id || !post?.author_id) return false;
+    return user.id === post.author_id;
+  }, [user?.id, post?.author_id]);
 
-  //  Retry logic for failed requests
+  // Retry logic for failed requests
   const fetchPost = async (isRetry = false) => {
     if (!slug) {
       setError('Ingen slug angiven');
@@ -46,7 +50,7 @@ const BlogPostPage: React.FC = () => {
         console.log('Post loaded successfully:', blogPost.title);
         setPost(blogPost);
         
-        //  Set SEO meta tags
+        // Set SEO meta tags
         if (blogPost.meta_title) {
           document.title = blogPost.meta_title;
         } else {
@@ -74,7 +78,7 @@ const BlogPostPage: React.FC = () => {
     }
   };
 
-  //  Retry mechanism
+  // Retry mechanism
   const handleRetry = () => {
     const newRetryCount = retryCount + 1;
     setRetryCount(newRetryCount);
@@ -111,7 +115,28 @@ const BlogPostPage: React.FC = () => {
     }
   };
 
-  //  Error state with retry option
+  // Memoized markdown to HTML converter to prevent re-computation
+  const htmlContent = useMemo(() => {
+    if (!post?.content) return '';
+    
+    const markdownToHtml = (markdown: string) => {
+      return markdown
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" loading="lazy" />')
+        .replace(/^- (.*$)/gim, '<li>$1</li>')
+        .replace(/\n/g, '<br />')
+        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+    };
+
+    return markdownToHtml(post.content);
+  }, [post?.content]);
+
+  // Error state with retry option
   if (error && !loading) {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
@@ -155,7 +180,7 @@ const BlogPostPage: React.FC = () => {
     );
   }
 
-  //  Better loading state
+  // Better loading state
   if (loading) {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
@@ -208,25 +233,6 @@ const BlogPostPage: React.FC = () => {
     );
   }
 
-  //  Memoized markdown to HTML converter to prevent re-computation
-  const htmlContent = useMemo(() => {
-    const markdownToHtml = (markdown: string) => {
-      return markdown
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" loading="lazy" />')
-        .replace(/^- (.*$)/gim, '<li>$1</li>')
-        .replace(/\n/g, '<br />')
-        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-    };
-
-    return markdownToHtml(post.content);
-  }, [post.content]);
-
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
       <article className="container-max section-padding py-20">
@@ -249,7 +255,7 @@ const BlogPostPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 text-hemp-600 mb-6">
             <div className="flex items-center space-x-2">
               <Calendar className="w-5 h-5" />
-              <span>{formatDate(post.published_at!)}</span>
+              <span>{post.published_at ? formatDate(post.published_at) : 'Ej publicerad'}</span>
             </div>
             {post.author && (
               <div className="flex items-center space-x-2">

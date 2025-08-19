@@ -1,6 +1,7 @@
 // src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { supabase, AuthUser, getCurrentUser } from '../lib/supabase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, AuthUser, getCurrentUser, signUp as firebaseSignUp, signIn as firebaseSignIn, signOut as firebaseSignOut } from '../lib/firebase';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -26,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Remove refreshUser from dependencies to prevent infinite loop
+  // Refresh user profile data
   const refreshUser = useCallback(async () => {
     // Prevent multiple concurrent refresh calls
     if (isRefreshing) return;
@@ -46,104 +47,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
-    let isInitialLoad = true;
 
-    // Only handle auth state changes, not initial session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        
-        console.log('🔄 Auth state change:', event, session?.user?.id);
-        
-        // Skip INITIAL_SESSION to prevent duplicate calls
-        if (event === 'INITIAL_SESSION') {
-          if (session?.user && isInitialLoad) {
-            console.log('Initial session found, loading user profile...');
-            try {
-              setIsRefreshing(true);
-              const currentUser = await getCurrentUser();
-              console.log('Auth context - initial user loaded:', currentUser?.id);
-              setUser(currentUser);
-            } catch (error) {
-              console.error('Error loading initial user:', error);
-              setUser(null);
-            } finally {
-              setIsRefreshing(false);
-              setLoading(false);
-              isInitialLoad = false;
-            }
-          } else {
-            console.log('No initial session found');
+    // Listen to Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
+      if (!mounted) return;
+      
+      console.log('🔄 Firebase auth state change:', firebaseUser?.uid);
+      
+      if (firebaseUser) {
+        // User is signed in
+        console.log('User signed in, loading profile...');
+        if (!isRefreshing) {
+          try {
+            setIsRefreshing(true);
+            const currentUser = await getCurrentUser();
+            console.log('Auth context - user loaded:', currentUser?.id);
+            setUser(currentUser);
+          } catch (error) {
+            console.error('Error loading user profile:', error);
             setUser(null);
-            setLoading(false);
-            isInitialLoad = false;
-          }
-          return;
-        }
-
-        // Handle other auth events
-        if (event === 'SIGNED_OUT' || !session?.user) {
-          console.log('User signed out or no session');
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          console.log('User signed in or token refreshed, refreshing profile...');
-          if (!isRefreshing) {
-            try {
-              setIsRefreshing(true);
-              const currentUser = await getCurrentUser();
-              console.log('Auth context - user refreshed:', currentUser?.id);
-              setUser(currentUser);
-            } catch (error) {
-              console.error('Error refreshing user:', error);
-              setUser(null);
-            } finally {
-              setIsRefreshing(false);
-            }
+          } finally {
+            setIsRefreshing(false);
           }
         }
-        
-        setLoading(false);
+      } else {
+        // User is signed out
+        console.log('User signed out');
+        setUser(null);
       }
-    );
+      
+      setLoading(false);
+    });
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      unsubscribe();
     };
   }, []); // Empty dependency array to prevent infinite loop
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName
-        }
-      }
-    });
-
-    return { data, error };
+    const result = await firebaseSignUp(email, password, fullName);
+    return result;
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    return { data, error };
+    const result = await firebaseSignIn(email, password);
+    return result;
   };
 
   const signOut = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signOut();
+    const result = await firebaseSignOut();
     // Auth state change listener will handle setting user to null
-    return { error };
+    return result;
   };
 
   const value = {

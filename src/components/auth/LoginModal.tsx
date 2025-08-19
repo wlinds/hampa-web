@@ -32,7 +32,32 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const getFirebaseErrorMessage = (errorCode: string) => {
+    switch (errorCode) {
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return 'Felaktiga inloggningsuppgifter. Kontrollera email och lösenord.';
+      case 'auth/user-disabled':
+        return 'Detta konto har inaktiverats.';
+      case 'auth/too-many-requests':
+        return 'För många inloggningsförsök. Försök igen senare.';
+      case 'auth/email-already-in-use':
+        return 'En användare med denna e-postadress finns redan.';
+      case 'auth/weak-password':
+        return 'Lösenordet är för svagt. Använd minst 6 tecken.';
+      case 'auth/invalid-email':
+        return 'Ogiltig e-postadress.';
+      case 'auth/operation-not-allowed':
+        return 'E-post/lösenord-inloggning är inte aktiverat.';
+      case 'auth/network-request-failed':
+        return 'Nätverksfel. Kontrollera din internetanslutning.';
+      default:
+        return 'Ett fel uppstod. Försök igen.';
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -49,7 +74,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         
         if (error) {
           console.error('Signup error:', error);
-          setError(error.message);
+          // Extract error code from Firebase error message
+          const errorCode = error.message.includes('auth/') 
+            ? error.message.match(/auth\/[a-z-]+/)?.[0] 
+            : null;
+          setError(errorCode ? getFirebaseErrorMessage(errorCode) : error.message);
         } else {
           setSuccess('Konto skapat! Väntar på godkännande från admin.');
           setFormData({ email: '', password: '', fullName: '', confirmPassword: '' });
@@ -63,18 +92,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         if (error) {
           console.error('Login error:', error);
           
-          // ← IMPROVED: Better error handling
-          if (error.message.includes('Invalid login credentials')) {
-            setError('Felaktiga inloggningsuppgifter. Kontrollera email och lösenord.');
-          } else if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
-            setError('E-post inte bekräftad än. Kolla din inkorg.');
-          } else {
-            setError('Inloggning misslyckades: ' + error.message);
-          }
+          // Extract error code from Firebase error message
+          const errorCode = error.message.includes('auth/') 
+            ? error.message.match(/auth\/[a-z-]+/)?.[0] 
+            : null;
+          setError(errorCode ? getFirebaseErrorMessage(errorCode) : error.message);
         } else {
-          // ← CHANGED: Don't try to close here, let useEffect handle it
-          console.log('Login API call successful, waiting for auth state change...');
           // The useEffect above will close the modal when user state updates
+          console.log('Login API call successful, waiting for auth state change...');
         }
       }
     } catch (err) {
@@ -84,7 +109,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       setLoading(false);
     }
   };
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({

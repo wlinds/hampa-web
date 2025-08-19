@@ -1,9 +1,11 @@
 // src/components/admin/AdminPanel.tsx
 import React, { useState, useEffect } from 'react';
 import { Users, Settings, CheckCircle, XCircle, Crown, User, Mail, Calendar } from 'lucide-react';
-import { Profile, getPendingUsers, approveUser, updateUserRole, formatDate } from '../../lib/supabase';
+import { Profile, getPendingUsers, approveUser, updateUserRole, formatDate } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProtectedRoute } from '../auth/ProtectedRoute';
+import { LoadingSkeleton } from '../ui/LoadingSkeleton';
+import { Button } from '../ui/Button';
 
 const AdminPanel: React.FC = () => {
   return (
@@ -74,8 +76,17 @@ const AdminPanelContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-hemp-600"></div>
+      <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
+        <div className="container-max section-padding py-20">
+          {/* Header skeleton */}
+          <div className="mb-8">
+            <div className="h-8 bg-hemp-100 rounded mb-4 w-48 animate-pulse"></div>
+            <div className="h-4 bg-hemp-100 rounded w-64 animate-pulse"></div>
+          </div>
+          
+          {/* Pending users skeleton */}
+          <LoadingSkeleton type="admin-list" count={3} />
+        </div>
       </div>
     );
   }
@@ -153,32 +164,37 @@ const AdminPanelContent: React.FC = () => {
                     </div>
 
                     <div className="flex items-center space-x-3">
-                      <button
+                      <Button
                         onClick={() => handleMakeAdmin(pendingUser.id)}
-                        disabled={processingUsers.has(pendingUser.id)}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors duration-200 disabled:opacity-50"
-                        title="Godkänn som admin"
+                        loading={processingUsers.has(pendingUser.id)}
+                        variant="secondary"
+                        size="sm"
+                        className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-300"
                       >
                         <Crown className="w-4 h-4 mr-1" />
                         Gör till admin
-                      </button>
+                      </Button>
 
-                      <button
+                      <Button
                         onClick={() => handleApproveUser(pendingUser.id)}
-                        disabled={processingUsers.has(pendingUser.id)}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors duration-200 disabled:opacity-50"
+                        loading={processingUsers.has(pendingUser.id)}
+                        variant="secondary"
+                        size="sm"
+                        className="bg-green-100 text-green-700 hover:bg-green-200 border-green-300"
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        {processingUsers.has(pendingUser.id) ? 'Godkänner...' : 'Godkänn'}
-                      </button>
+                        Godkänn
+                      </Button>
 
-                      <button
+                      <Button
                         disabled={processingUsers.has(pendingUser.id)}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors duration-200 disabled:opacity-50"
+                        variant="secondary"
+                        size="sm"
+                        className="bg-red-100 text-red-700 hover:bg-red-200 border-red-300"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
                         Avslå
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>

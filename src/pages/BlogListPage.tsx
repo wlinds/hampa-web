@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, ArrowRight, Edit, Plus, AlertCircle, RefreshCw } from 'lucide-react';
-import { BlogPost, getPublishedPosts, formatDate } from '../lib/supabase';
+import { BlogPost, getPublishedPosts, formatDate } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 
 const BlogListPage: React.FC = () => {

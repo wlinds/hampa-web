@@ -1,7 +1,7 @@
 // src/components/admin/AdminNotification.tsx
 import React, { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { getPendingUsers } from '../../lib/supabase';
+import { getPendingUsers } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminNotification: React.FC = () => {

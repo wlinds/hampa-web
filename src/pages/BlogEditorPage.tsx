@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, Image as ImageIcon, Bold, Italic, List, Link2, Type } from 'lucide-react';
-import { createPost, updatePost, getPostBySlug, generateSlug, uploadImage } from '../lib/supabase';
+import { createPost, updatePost, getPostBySlug, generateSlug, uploadImage } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 
