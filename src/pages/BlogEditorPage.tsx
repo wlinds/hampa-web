@@ -1,10 +1,14 @@
 // src/pages/BlogEditorPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, Image as ImageIcon, Bold, Italic, List, Link2, Type } from 'lucide-react';
+import { Upload, Image as ImageIcon, Bold, Italic, List, Link2, Type, X } from 'lucide-react';
 import { createPost, updatePost, getPostBySlug, generateSlug, uploadImage } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { ProtectedRoute } from '../components/auth/ProtectedRoute'
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+import { markdownToHtml } from '../utils/markdown';
+import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
+import { BackButton } from '../components/ui/BackButton';
+import { Button } from '../components/ui/Button';
 
 const BlogEditorPage: React.FC = () => {
   return (
@@ -35,6 +39,15 @@ const BlogEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageModalType, setImageModalType] = useState<'upload' | 'url'>('upload');
+
+  // Reset modal tab when modal closes
+  useEffect(() => {
+    if (!showImageModal) {
+      setImageModalType('upload');
+    }
+  }, [showImageModal]);
 
   useEffect(() => {
     if (isEditing) {
@@ -78,7 +91,7 @@ const BlogEditor: React.FC = () => {
     }));
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
@@ -128,6 +141,46 @@ const BlogEditor: React.FC = () => {
     }, 0);
   };
 
+  const handleEmbeddedImageUpload = async (file: File) => {
+    if (!user) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Endast bildfiler är tillåtna');
+      return;
+    }
+
+    // Validate file size (50MB limit)
+    if (file.size > 50 * 1024 * 1024) {
+      alert('Bilden är för stor. Maximal storlek är 50MB.');
+      return;
+    }
+
+    setImageUploading(true);
+    try {
+      const imageUrl = await uploadImage(file, user.id);
+      const imageMarkdown = `![Beskrivning av bild](${imageUrl})`;
+      insertAtCursor(imageMarkdown);
+      setShowImageModal(false);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Fel vid uppladdning av bild';
+      alert(errorMessage);
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleImageUrlInsert = (url: string, altText: string = 'Beskrivning av bild') => {
+    if (!url.trim()) {
+      alert('Ange en giltig bild-URL');
+      return;
+    }
+    const imageMarkdown = `![${altText}](${url})`;
+    insertAtCursor(imageMarkdown);
+    setShowImageModal(false);
+  };
+
   const handleSave = async (publishNow = false) => {
     if (!user || !formData.title.trim() || !formData.content.trim()) {
       alert('Titel och innehåll är obligatoriska');
@@ -165,9 +218,7 @@ const BlogEditor: React.FC = () => {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
         <div className="container-max section-padding py-20">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hemp-600"></div>
-          </div>
+          <LoadingSkeleton type="post" />
         </div>
       </div>
     );
@@ -178,37 +229,33 @@ const BlogEditor: React.FC = () => {
       <div className="container-max section-padding py-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => navigate('/blog')}
-            className="inline-flex items-center text-hemp-600 hover:text-hemp-800 transition-colors duration-200"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <BackButton to="/blog">
             Tillbaka till bloggen
-          </button>
+          </BackButton>
 
           <div className="flex items-center space-x-3">
-            <button
+            <Button
               onClick={() => setPreviewMode(!previewMode)}
-              className="btn-secondary flex items-center"
+              variant="secondary"
             >
               {previewMode ? 'Redigera' : 'Förhandsgranska'}
-            </button>
+            </Button>
             
-            <button
+            <Button
               onClick={() => handleSave(false)}
-              disabled={saving}
-              className="btn-secondary disabled:opacity-50"
+              loading={saving}
+              variant="secondary"
             >
-              {saving ? 'Sparar...' : 'Spara utkast'}
-            </button>
+              Spara utkast
+            </Button>
 
-            <button
+            <Button
               onClick={() => handleSave(true)}
-              disabled={saving}
-              className="btn-primary disabled:opacity-50"
+              loading={saving}
+              variant="primary"
             >
-              {saving ? 'Publicerar...' : 'Publicera'}
-            </button>
+              Publicera
+            </Button>
           </div>
         </div>
 
@@ -263,7 +310,7 @@ const BlogEditor: React.FC = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handleImageUpload}
+                      onChange={handleFeaturedImageUpload}
                       className="hidden"
                       id="featured-image-upload"
                     />
@@ -341,14 +388,18 @@ const BlogEditor: React.FC = () => {
                     >
                       <Link2 className="w-4 h-4" />
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => insertAtCursor('![alt text](bildurl)')}
-                      className="p-2 hover:bg-hemp-100 rounded text-hemp-700"
-                      title="Bild"
-                    >
-                      <ImageIcon className="w-4 h-4" />
-                    </button>
+                    
+                    {/* Enhanced Image Button with Dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowImageModal(true)}
+                        className="p-2 hover:bg-hemp-100 rounded text-hemp-700"
+                        title="Lägg till bild"
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   <textarea
@@ -369,6 +420,7 @@ const BlogEditor: React.FC = () => {
                       <li>## Rubrik för rubriker</li>
                       <li>- Lista för punktlistor</li>
                       <li>[länktext](url) för länkar</li>
+                      <li>![alt text](bildurl) för bilder</li>
                     </ul>
                   </div>
                 </div>
@@ -447,32 +499,176 @@ const BlogEditor: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Image Upload Modal */}
+        {showImageModal && (
+          <ImageUploadModal
+            isOpen={showImageModal}
+            onClose={() => setShowImageModal(false)}
+            onImageUpload={handleEmbeddedImageUpload}
+            onImageUrl={handleImageUrlInsert}
+            uploading={imageUploading}
+            activeTab={imageModalType}
+            setActiveTab={setImageModalType}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-// Preview Component
+// Image Upload Modal Component
+interface ImageUploadModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onImageUpload: (file: File) => void;
+  onImageUrl: (url: string, altText: string) => void;
+  uploading: boolean;
+  activeTab: 'upload' | 'url';
+  setActiveTab: (tab: 'upload' | 'url') => void;
+}
+
+const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
+  isOpen,
+  onClose,
+  onImageUpload,
+  onImageUrl,
+  uploading,
+  activeTab,
+  setActiveTab
+}) => {
+  const [imageUrl, setImageUrl] = useState('');
+  const [altText, setAltText] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onImageUpload(file);
+    }
+    e.target.value = ''; // Reset input
+  };
+
+  const handleUrlSubmit = () => {
+    onImageUrl(imageUrl, altText || 'Beskrivning av bild');
+    setImageUrl('');
+    setAltText('');
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-hemp-100">
+          <h3 className="text-lg font-semibold text-hemp-900">Lägg till bild</h3>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-hemp-100 rounded transition-colors duration-200"
+          >
+            <X className="w-5 h-5 text-hemp-600" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-hemp-100">
+          <button
+            onClick={() => setActiveTab('upload')}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors duration-200 ${
+              activeTab === 'upload'
+                ? 'bg-hemp-50 text-hemp-700 border-b-2 border-hemp-600'
+                : 'text-hemp-600 hover:text-hemp-800'
+            }`}
+          >
+            Ladda upp
+          </button>
+          <button
+            onClick={() => setActiveTab('url')}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors duration-200 ${
+              activeTab === 'url'
+                ? 'bg-hemp-50 text-hemp-700 border-b-2 border-hemp-600'
+                : 'text-hemp-600 hover:text-hemp-800'
+            }`}
+          >
+            URL
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {activeTab === 'upload' ? (
+            <div className="space-y-4">
+              <p className="text-sm text-hemp-600">
+                Välj en bildfil från din dator att ladda upp.
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                disabled={uploading}
+                className="w-full p-3 border border-hemp-200 rounded-lg focus:ring-2 focus:ring-hemp-500 focus:border-transparent disabled:opacity-50"
+              />
+              {uploading && (
+                <p className="text-sm text-hemp-600">Laddar upp bild...</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-hemp-900 mb-2">
+                  Bild-URL *
+                </label>
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="w-full px-3 py-2 border border-hemp-200 rounded-lg focus:ring-2 focus:ring-hemp-500 focus:border-transparent"
+                  placeholder="https://example.com/bild.jpg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-hemp-900 mb-2">
+                  Alt-text (beskrivning)
+                </label>
+                <input
+                  type="text"
+                  value={altText}
+                  onChange={(e) => setAltText(e.target.value)}
+                  className="w-full px-3 py-2 border border-hemp-200 rounded-lg focus:ring-2 focus:ring-hemp-500 focus:border-transparent"
+                  placeholder="Beskrivning av bilden"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <Button
+                  onClick={onClose}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  Avbryt
+                </Button>
+                <Button
+                  onClick={handleUrlSubmit}
+                  disabled={!imageUrl.trim()}
+                  variant="primary"
+                  className="flex-1"
+                >
+                  Lägg till
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Preview Component - Now uses the centralized markdown utility
 interface BlogPreviewProps {
   formData: any;
 }
 
 const BlogPreview: React.FC<BlogPreviewProps> = ({ formData }) => {
-  // Simple markdown to HTML converter
-  const markdownToHtml = (markdown: string) => {
-    return markdown
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" />')
-      .replace(/^- (.*$)/gim, '<li>$1</li>')
-      .replace(/\n/g, '<br />')
-      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-  };
-
   return (
     <div className="bg-white p-8 rounded-lg border border-hemp-200">
       <h1 className="text-3xl font-bold text-hemp-900 mb-4">{formData.title || 'Titel'}</h1>
@@ -490,7 +686,7 @@ const BlogPreview: React.FC<BlogPreviewProps> = ({ formData }) => {
       )}
       
       <div 
-        className="prose prose-lg max-w-none"
+        className="prose prose-lg max-w-none prose-hemp"
         dangerouslySetInnerHTML={{ 
           __html: markdownToHtml(formData.content || 'Innehåll kommer här...') 
         }}

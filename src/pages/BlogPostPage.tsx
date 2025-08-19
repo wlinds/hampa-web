@@ -1,106 +1,101 @@
 // src/pages/BlogPostPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, User, ArrowLeft, Edit, Trash2, AlertCircle, RefreshCw } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Calendar, User, Edit, Trash2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 // Import types and functions from firebase
 import type { BlogPost } from '../lib/firebase';
 import { getPostBySlug, deletePost, formatDate } from '../lib/firebase';
 
+// Import new utilities
+import { markdownToHtml } from '../utils/markdown';
+import { setSEOTags, resetSEOTags, generateBlogPostStructuredData, insertStructuredData } from '../utils/seo';
+import { useApiWithRetry } from '../hooks/useApiWithRetry';
+import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
+import { ErrorDisplay } from '../components/ui/ErrorDisplay';
+import { BackButton } from '../components/ui/BackButton';
+import { Button } from '../components/ui/Button';
+
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { user } = useAuth();
+  const { user } = useAuth(); // user can be null for non-logged in users
   const navigate = useNavigate();
   
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+
+  // Use the custom hook for API call with retry logic
+  const { 
+    data: post, 
+    loading, 
+    error, 
+    retryCount, 
+    maxRetries, 
+    retry 
+  } = useApiWithRetry<BlogPost | null>(
+    async () => {
+      if (!slug) throw new Error('Ingen slug angiven');
+      return await getPostBySlug(slug);
+    },
+    [slug], // Re-fetch when slug changes
+    { maxRetries: 3 }
+  );
 
   // Memoize author check to prevent unnecessary re-renders
+  // Only return true if user is logged in AND is the author
   const isAuthor = useMemo(() => {
     if (!user?.id || !post?.author_id) return false;
     return user.id === post.author_id;
   }, [user?.id, post?.author_id]);
 
-  // Retry logic for failed requests
-  const fetchPost = async (isRetry = false) => {
-    if (!slug) {
-      setError('Ingen slug angiven');
-      setLoading(false);
-      return;
-    }
+  // Memoized markdown to HTML converter to prevent re-computation
+  const htmlContent = useMemo(() => {
+    if (!post?.content) return '';
+    return markdownToHtml(post.content);
+  }, [post?.content]);
 
-    try {
-      if (!isRetry) {
-        setLoading(true);
-      }
-      setError('');
-      
-      console.log('🔄 Fetching post by slug:', slug);
-      const blogPost = await getPostBySlug(slug);
-      
-      if (!blogPost) {
-        console.log('Post not found');
-        setPost(null);
-      } else {
-        console.log('Post loaded successfully:', blogPost.title);
-        setPost(blogPost);
-        
-        // Set SEO meta tags
-        if (blogPost.meta_title) {
-          document.title = blogPost.meta_title;
-        } else {
-          document.title = `${blogPost.title} - Hampaoasen`;
-        }
-        
-        if (blogPost.meta_description) {
-          let metaDesc = document.querySelector('meta[name="description"]');
-          if (!metaDesc) {
-            metaDesc = document.createElement('meta');
-            metaDesc.setAttribute('name', 'description');
-            document.head.appendChild(metaDesc);
-          }
-          metaDesc.setAttribute('content', blogPost.meta_description);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching post:', error);
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Ett oväntat fel uppstod vid hämtning av blogginlägget';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Retry mechanism
-  const handleRetry = () => {
-    const newRetryCount = retryCount + 1;
-    setRetryCount(newRetryCount);
-    
-    const delay = Math.min(1000 * Math.pow(2, newRetryCount - 1), 8000);
-    
-    setTimeout(() => {
-      fetchPost(true);
-    }, delay);
-  };
-
+  // Set SEO and structured data when post loads
   useEffect(() => {
-    fetchPost();
-    
-    // Cleanup function to reset document title
-    return () => {
-      document.title = 'Hampaoasen - Hampa & Biologisk Mångfald';
+    if (!post) return;
+
+    // Set SEO meta tags
+    const seoData = {
+      title: post.meta_title || post.title,
+      description: post.meta_description || post.excerpt || '',
+      image: post.featured_image || undefined,
+      url: `https://hampaoasen.se/blog/${post.slug}`,
+      type: 'article' as const,
+      publishedTime: post.published_at || undefined,
+      modifiedTime: post.updated_at,
+      author: post.author?.full_name || post.author?.email || 'Hampaoasen'
     };
-  }, [slug]);
+
+    setSEOTags(seoData);
+
+    // Add structured data
+    if (post.published_at) {
+      const structuredData = generateBlogPostStructuredData({
+        title: post.title,
+        description: post.excerpt || seoData.description,
+        author: seoData.author!,
+        publishedDate: post.published_at,
+        modifiedDate: post.updated_at,
+        image: post.featured_image || undefined,
+        url: seoData.url
+      });
+
+      insertStructuredData(structuredData);
+    }
+
+    // Cleanup function to reset SEO tags
+    return () => {
+      resetSEOTags();
+    };
+  }, [post]);
 
   const handleDelete = async () => {
-    if (!post) return;
+    if (!post || !user) return; // Ensure user is logged in
     
     setDeleting(true);
     try {
@@ -115,90 +110,27 @@ const BlogPostPage: React.FC = () => {
     }
   };
 
-  // Memoized markdown to HTML converter to prevent re-computation
-  const htmlContent = useMemo(() => {
-    if (!post?.content) return '';
-    
-    const markdownToHtml = (markdown: string) => {
-      return markdown
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" loading="lazy" />')
-        .replace(/^- (.*$)/gim, '<li>$1</li>')
-        .replace(/\n/g, '<br />')
-        .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
-    };
-
-    return markdownToHtml(post.content);
-  }, [post?.content]);
-
   // Error state with retry option
   if (error && !loading) {
     return (
-      <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
-        <div className="container-max section-padding py-20">
-          <Link
-            to="/blog"
-            className="inline-flex items-center text-hemp-600 hover:text-hemp-800 mb-8 transition-colors duration-200"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Tillbaka till bloggen
-          </Link>
-          
-          <div className="text-center max-w-md mx-auto">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-hemp-900 mb-2">
-              Problem med att ladda blogginlägget
-            </h2>
-            <p className="text-hemp-600 mb-6">
-              {error}
-            </p>
-            <button
-              onClick={handleRetry}
-              disabled={loading}
-              className="btn-primary inline-flex items-center disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Försöker igen...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Försök igen
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+      <ErrorDisplay
+        title="Problem med att ladda blogginlägget"
+        message={error}
+        onRetry={retry}
+        retryLoading={loading}
+        retryCount={retryCount}
+        maxRetries={maxRetries}
+        backTo="/blog"
+        backText="Tillbaka till bloggen"
+      />
     );
   }
 
-  // Better loading state
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
-        <article className="container-max section-padding py-20">
-          <div className="h-6 w-32 bg-hemp-100 rounded mb-8 animate-pulse"></div>
-          
-          <header className="max-w-4xl mx-auto mb-12">
-            <div className="h-12 bg-hemp-100 rounded-lg mb-6 animate-pulse"></div>
-            <div className="h-4 w-64 bg-hemp-100 rounded mb-6 animate-pulse"></div>
-            <div className="h-64 md:h-96 bg-hemp-100 rounded-2xl animate-pulse"></div>
-          </header>
-          
-          <div className="max-w-4xl mx-auto space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-4 bg-hemp-100 rounded animate-pulse"></div>
-            ))}
-          </div>
-        </article>
+        <LoadingSkeleton type="post" />
       </div>
     );
   }
@@ -208,13 +140,9 @@ const BlogPostPage: React.FC = () => {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
         <div className="container-max section-padding py-20">
-          <Link
-            to="/blog"
-            className="inline-flex items-center text-hemp-600 hover:text-hemp-800 mb-8 transition-colors duration-200"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <BackButton to="/blog" className="mb-8">
             Tillbaka till bloggen
-          </Link>
+          </BackButton>
           
           <div className="text-center">
             <AlertCircle className="w-16 h-16 text-hemp-600 mx-auto mb-4" />
@@ -224,9 +152,9 @@ const BlogPostPage: React.FC = () => {
             <p className="text-hemp-600 mb-6">
               Det blogginlägg du letar efter finns inte eller har tagits bort.
             </p>
-            <Link to="/blog" className="btn-primary">
+            <Button as="a" href="/blog">
               Tillbaka till bloggen
-            </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -237,13 +165,9 @@ const BlogPostPage: React.FC = () => {
     <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
       <article className="container-max section-padding py-20">
         {/* Back Button */}
-        <Link
-          to="/blog"
-          className="inline-flex items-center text-hemp-600 hover:text-hemp-800 mb-8 transition-colors duration-200"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+        <BackButton to="/blog" className="mb-8">
           Tillbaka till bloggen
-        </Link>
+        </BackButton>
 
         {/* Header */}
         <header className="max-w-4xl mx-auto mb-12">
@@ -265,16 +189,18 @@ const BlogPostPage: React.FC = () => {
             )}
           </div>
 
-          {/* Author Actions */}
+          {/* Author Actions - Only show if user is logged in and is the author */}
           {isAuthor && (
             <div className="flex items-center space-x-4 mb-6">
-              <Link
-                to={`/blog/${post.slug}/edit`}
-                className="inline-flex items-center btn-secondary text-sm"
+              <Button
+                as="a"
+                href={`/blog/${post.slug}/edit`}
+                variant="secondary"
+                size="sm"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Redigera
-              </Link>
+              </Button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 className="inline-flex items-center text-red-600 hover:text-red-800 text-sm font-medium"
@@ -310,8 +236,28 @@ const BlogPostPage: React.FC = () => {
           />
         </div>
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
+        {/* Call to Action for non-logged in users */}
+        {!user && (
+          <div className="max-w-4xl mx-auto mt-12 p-6 bg-hemp-50 border border-hemp-200 rounded-xl">
+            <h3 className="text-lg font-semibold text-hemp-900 mb-2">
+              Gillade du det här inlägget?
+            </h3>
+            <p className="text-hemp-700 mb-4">
+              Kontakta oss för att få tillgång till vår bloggplattform och dela dina kunskaper om hampa, biologisk mångfald och hållbar odling.
+            </p>
+            <Button 
+              variant="secondary" 
+              size="sm"
+              as="a"
+              href="/#contact"
+            >
+              Kontakta oss
+            </Button>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal - Only available for authors */}
+        {showDeleteConfirm && isAuthor && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
               <h3 className="text-lg font-semibold text-red-900 mb-4">
@@ -321,20 +267,22 @@ const BlogPostPage: React.FC = () => {
                 Är du säker på att du vill ta bort detta blogginlägg? Denna åtgärd kan inte ångras.
               </p>
               <div className="flex space-x-3">
-                <button
+                <Button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 btn-secondary"
+                  variant="secondary"
                   disabled={deleting}
+                  className="flex-1"
                 >
                   Avbryt
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleDelete}
-                  disabled={deleting}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
+                  loading={deleting}
+                  variant="danger"
+                  className="flex-1"
                 >
-                  {deleting ? 'Tar bort...' : 'Ta bort'}
-                </button>
+                  Ta bort
+                </Button>
               </div>
             </div>
           </div>

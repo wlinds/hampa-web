@@ -239,33 +239,67 @@ export const getPublishedPosts = async (): Promise<BlogPost[]> => {
   }
 
   try {
-    const q = query(
+    console.log('Fetching published posts from Firestore...');
+    
+    // Try a simpler query first to test basic read permissions
+    const simpleQuery = query(
       collection(db, 'blog_posts'),
       where('status', '==', 'published'),
-      orderBy('published_at', 'desc'),
-      limit(50)
+      limit(10)
     );
 
-    const querySnapshot = await getDocs(q);
+    console.log('Executing query...');
+    const querySnapshot = await getDocs(simpleQuery);
+    console.log(`Found ${querySnapshot.docs.length} published posts`);
+    
+    if (querySnapshot.empty) {
+      console.log('No published posts found. This might be expected if no posts are published yet.');
+      blogCache.set(cacheKey, { data: [], timestamp: Date.now() });
+      return [];
+    }
+
     const posts: BlogPost[] = [];
 
     for (const docSnapshot of querySnapshot.docs) {
       const data = docSnapshot.data();
+      console.log(`Processing post: ${data.title}, status: ${data.status}`);
       
-      // Get author profile
+      // Skip author profile fetching for public access to avoid permission errors
+      // Author info can be cached or provided differently if needed for public view
       let author: Profile | undefined;
-      if (data.author_id) {
-        const authorRef = doc(db, 'profiles', data.author_id);
-        const authorSnap = await getDoc(authorRef);
-        if (authorSnap.exists()) {
-          const authorData = authorSnap.data();
-          author = {
-            ...authorData,
-            id: data.author_id,
-            created_at: authorData.created_at?.toDate?.()?.toISOString() || authorData.created_at,
-            updated_at: authorData.updated_at?.toDate?.()?.toISOString() || authorData.updated_at
-          } as Profile;
+      
+      // Only try to fetch author if we're authenticated
+      const currentUser = auth.currentUser;
+      if (data.author_id && currentUser) {
+        try {
+          const authorRef = doc(db, 'profiles', data.author_id);
+          const authorSnap = await getDoc(authorRef);
+          if (authorSnap.exists()) {
+            const authorData = authorSnap.data();
+            author = {
+              ...authorData,
+              id: data.author_id,
+              created_at: authorData.created_at?.toDate?.()?.toISOString() || authorData.created_at,
+              updated_at: authorData.updated_at?.toDate?.()?.toISOString() || authorData.updated_at
+            } as Profile;
+          }
+        } catch (authorError) {
+          console.warn('Could not fetch author profile:', authorError);
+          // Continue without author info
         }
+      } else if (data.author_id) {
+        // For public access, create a minimal author object without fetching from profiles
+        // This avoids permission errors while still showing some author info
+        author = {
+          id: data.author_id,
+          email: 'Hampaoasen Team',
+          full_name: 'Hampaoasen',
+          avatar_url: null,
+          role: 'user' as const,
+          approved: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
       }
 
       const post: BlogPost = {
@@ -288,11 +322,32 @@ export const getPublishedPosts = async (): Promise<BlogPost[]> => {
       posts.push(post);
     }
 
-    blogCache.set(cacheKey, { data: posts, timestamp: Date.now() });
-    return posts;
-  } catch (error) {
+    // Sort by published_at on the client side to avoid compound index issues
+    const sortedPosts = posts.sort((a, b) => {
+      const dateA = new Date(a.published_at || a.created_at);
+      const dateB = new Date(b.published_at || b.created_at);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    console.log(`Successfully processed ${sortedPosts.length} published posts`);
+    blogCache.set(cacheKey, { data: sortedPosts, timestamp: Date.now() });
+    return sortedPosts;
+  } catch (error: any) {
     console.error('getPublishedPosts error:', error);
-    throw error;
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    // Provide more specific error messages
+    if (error.code === 'permission-denied') {
+      throw new Error('Blogginläggen är för tillfället inte tillgängliga för allmänheten. Kontakta oss för mer information.');
+    } else if (error.code === 'unavailable') {
+      throw new Error('Bloggtjänsten är tillfälligt otillgänglig. Försök igen senare.');
+    } else if (error.code === 'failed-precondition') {
+      console.warn('Compound index might be missing. Using simpler query.');
+      throw new Error('Bloggdatabasen konfigureras. Försök igen om en stund.');
+    } else {
+      throw new Error(`Problem med att ladda blogginlägg: ${error.message}`);
+    }
   }
 };
 
@@ -320,19 +375,41 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
     const docSnapshot = querySnapshot.docs[0];
     const data = docSnapshot.data();
 
-    // Get author profile
+    // Handle author profile with permission checks
     let author: Profile | undefined;
+    
     if (data.author_id) {
-      const authorRef = doc(db, 'profiles', data.author_id);
-      const authorSnap = await getDoc(authorRef);
-      if (authorSnap.exists()) {
-        const authorData = authorSnap.data();
+      // Only try to fetch author profile if we're authenticated
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          const authorRef = doc(db, 'profiles', data.author_id);
+          const authorSnap = await getDoc(authorRef);
+          if (authorSnap.exists()) {
+            const authorData = authorSnap.data();
+            author = {
+              ...authorData,
+              id: data.author_id,
+              created_at: authorData.created_at?.toDate?.()?.toISOString() || authorData.created_at,
+              updated_at: authorData.updated_at?.toDate?.()?.toISOString() || authorData.updated_at
+            } as Profile;
+          }
+        } catch (authorError) {
+          console.warn('Could not fetch author profile:', authorError);
+          // Continue without author info
+        }
+      } else {
+        // For public access, create a default author object
         author = {
-          ...authorData,
           id: data.author_id,
-          created_at: authorData.created_at?.toDate?.()?.toISOString() || authorData.created_at,
-          updated_at: authorData.updated_at?.toDate?.()?.toISOString() || authorData.updated_at
-        } as Profile;
+          email: 'Hampaoasen Team',
+          full_name: 'Hampaoasen',
+          avatar_url: null,
+          role: 'user' as const,
+          approved: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
       }
     }
 
