@@ -18,6 +18,7 @@
 }
 
 @layer components {
+  /* Legacy button classes - keep for backward compatibility but prefer Button component */
   .btn-primary {
     @apply bg-hemp-600 hover:bg-hemp-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl;
   }
@@ -36,6 +37,92 @@
   
   .text-gradient {
     @apply bg-gradient-to-r from-hemp-700 to-hemp-500 bg-clip-text text-transparent;
+  }
+
+  /* Line clamp utilities for consistent text truncation */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Prose styling for blog content */
+  .prose-hemp {
+    @apply text-hemp-800;
+  }
+
+  .prose-hemp h1,
+  .prose-hemp h2,
+  .prose-hemp h3,
+  .prose-hemp h4,
+  .prose-hemp h5,
+  .prose-hemp h6 {
+    @apply text-hemp-900 font-bold;
+  }
+
+  .prose-hemp h1 {
+    @apply text-3xl mb-6 mt-8;
+  }
+
+  .prose-hemp h2 {
+    @apply text-2xl mb-4 mt-6;
+  }
+
+  .prose-hemp h3 {
+    @apply text-xl mb-3 mt-5;
+  }
+
+  .prose-hemp a {
+    @apply text-hemp-600 hover:text-hemp-800 underline;
+  }
+
+  .prose-hemp strong {
+    @apply text-hemp-900 font-semibold;
+  }
+
+  .prose-hemp ul,
+  .prose-hemp ol {
+    @apply my-4 pl-6;
+  }
+
+  .prose-hemp li {
+    @apply mb-2;
+  }
+
+  .prose-hemp ul li {
+    @apply list-disc;
+  }
+
+  .prose-hemp ol li {
+    @apply list-decimal;
+  }
+
+  .prose-hemp blockquote {
+    @apply border-l-4 border-hemp-300 pl-4 italic text-hemp-700 my-4;
+  }
+
+  .prose-hemp code {
+    @apply bg-hemp-50 text-hemp-800 px-2 py-1 rounded text-sm font-mono;
+  }
+
+  .prose-hemp pre {
+    @apply bg-hemp-100 p-4 rounded-lg overflow-x-auto my-4;
+  }
+
+  .prose-hemp pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-hemp img {
+    @apply rounded-lg shadow-md my-6;
   }
 }
 
@@ -78,6 +165,7 @@
     }
   }
 
+/* Hide reCAPTCHA badge */
 .grecaptcha-badge {
   visibility: hidden !important;
   opacity: 0 !important;
@@ -107,5 +195,4 @@ div[style*="position: fixed; bottom"] {
 iframe[title="reCAPTCHA"] {
   display: none !important;
 }
-  
 }
