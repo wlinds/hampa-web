@@ -423,10 +423,10 @@ const ContactSection: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between">
                     <p className="text-sm text-hemp-600">
                       * Obligatoriska fält
                     </p>
+                  <div className="flex items-center justify-between">
                     <button
                       type="submit"
                       disabled={isLoading}
