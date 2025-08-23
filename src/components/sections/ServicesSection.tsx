@@ -81,8 +81,7 @@ const ServicesSection: React.FC = () => {
                   </p>
                   <ul className="space-y-2">
                     {service.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-sm text-hemp-600">
-                        <div className={`w-1.5 h-1.5 ${service.color === 'hemp' ? 'bg-hemp-400' : 'bg-earth-400'} rounded-full mr-3`}></div>
+                      <li key={featureIndex} className="feature-item text-sm text-hemp-600">
                         {feature}
                       </li>
                     ))}
