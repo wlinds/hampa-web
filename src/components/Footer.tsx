@@ -111,7 +111,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-hemp-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-hemp-300 text-sm mb-4 md:mb-0">
-              © {currentYear} Hampaoasen. Koden är licencerad under <a href="https://opensource.org/license/mit" className="underline">MIT</a>. 
+              © {currentYear} Hampaoasen. Koden är licensierad under <a href="https://opensource.org/license/mit" className="underline">MIT</a>. 
             </div>
             <div className="flex items-center space-x-1 text-hemp-300 text-sm">
               <span>Gjord med</span>
