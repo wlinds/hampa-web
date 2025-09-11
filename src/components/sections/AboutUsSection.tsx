@@ -2,26 +2,26 @@ import React from 'react';
 import { Users } from 'lucide-react';
 
 const AboutUsSection: React.FC = () => {
-  const teamMembers = [
-    {
-      name: 'Calle',
-      role: 'Biodlare & Tidigare Hampabonde',
-      description: 'Stor entusiast med djup kunskap om hampa och dess roll i ekosystemet.',
-      image: '/images/team-calle.jpg'
-    },
-    {
-      name: 'Robin',
-      role: 'Trädgårdsmästare',
-      description: 'Vidareutbildad inom grön urban utveckling och biologisk mångfald.',
-      image: '/images/team-robin.jpg'
-    },
-    {
-      name: 'Akilles',
-      role: 'Webbutvecklare & Data Scientist',
-      description: 'Ansvarig för digitala lösningar, teknisk utveckling och dataanalys.',
-      image: '/images/team-akilles.jpg'
-    }
-  ];
+  // const teamMembers = [
+  //   {
+  //     name: 'Calle',
+  //     role: 'Biodlare & Tidigare Hampabonde',
+  //     description: 'Stor entusiast med djup kunskap om hampa och dess roll i ekosystemet.',
+  //     image: '/images/team-calle.jpg'
+  //   },
+  //   {
+  //     name: 'Robin',
+  //     role: 'Trädgårdsmästare',
+  //     description: 'Vidareutbildad inom grön urban utveckling och biologisk mångfald.',
+  //     image: '/images/team-robin.jpg'
+  //   },
+  //   {
+  //     name: 'Akilles',
+  //     role: 'Webbutvecklare & Data Scientist',
+  //     description: 'Ansvarig för digitala lösningar, teknisk utveckling och dataanalys.',
+  //     image: '/images/team-akilles.jpg'
+  //   }
+  // ];
 
   
   return (
@@ -72,7 +72,7 @@ const AboutUsSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Team Members */}
+        {/* Team Members
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-hemp-900 text-center mb-12">
             Vårt Team
@@ -109,7 +109,7 @@ const AboutUsSection: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
