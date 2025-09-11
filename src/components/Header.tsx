@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Leaf, LogIn, LogOut, User, Settings, Edit } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginModal } from './auth/LoginModal';
+import { Menu, X, Leaf } from 'lucide-react';
+// import { LogIn, LogOut, User, Settings, Edit } from 'lucide-react';
+// import { useAuth } from '../contexts/AuthContext';
+// import { LoginModal } from './auth/LoginModal';
 
-// Create a context for triggering login modal from other components
-interface LoginModalContextType {
-  showLoginModal: () => void;
-}
+// interface LoginModalContextType {
+//   showLoginModal: () => void;
+// }
 
-export const LoginModalContext = React.createContext<LoginModalContextType>({
-  showLoginModal: () => {}
-});
+// export const LoginModalContext = React.createContext<LoginModalContextType>({
+//   showLoginModal: () => {}
+// });
 
 const Header: React.FC = () => {
-  const { user, signOut } = useAuth();
+  // const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  // const [showLoginModal, setShowLoginModal] = useState(false);
+  // const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
     { name: 'Hem', href: '/' },
     { name: 'Tjänster', href: '/#services' },
     { name: 'Om Hampa', href: '/#about-hemp' },
-    { name: 'Blogg', href: '/blog' },
+    // { name: 'Blogg', href: '/blog' },
     { name: 'Bildgalleri', href: '/#gallery' },
     { name: 'Frågor & Svar', href: '/#faq' },
     { name: 'Om Oss', href: '/#about-us' },
@@ -62,23 +62,23 @@ const Header: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    setShowUserMenu(false);
-    window.location.href = '/';
-  };
+  // const handleSignOut = async () => {
+  //   await signOut();
+  //   setShowUserMenu(false);
+  //   window.location.href = '/';
+  // };
 
-  const triggerLoginModal = () => {
-    setShowLoginModal(true);
-  };
+  // const triggerLoginModal = () => {
+  //   setShowLoginModal(true);
+  // };
 
-  // Provide login modal trigger to child components
-  const loginModalContextValue = {
-    showLoginModal: triggerLoginModal
-  };
+  // // Provide login modal trigger to child components
+  // const loginModalContextValue = {
+  //   showLoginModal: triggerLoginModal
+  // };
 
   return (
-    <LoginModalContext.Provider value={loginModalContextValue}>
+    // <LoginModalContext.Provider value={loginModalContextValue}>
       <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/95 backdrop-blur-md shadow-lg' 
@@ -125,8 +125,8 @@ const Header: React.FC = () => {
               ))}
             </div>
 
-            {/* User Menu / Auth */}
-            <div className="hidden lg:flex items-center space-x-4">
+            {/* User Menu / Auth - HIDDEN ON THIS BRANCH */}
+            {/* <div className="hidden lg:flex items-center space-x-4">
               {user ? (
                 <div className="relative">
                   <button
@@ -146,8 +146,8 @@ const Header: React.FC = () => {
                           {user.profile?.full_name || user.email}
                         </p>
                         <p className="text-xs text-hemp-600">
-                          {user.profile?.role === 'admin' ? 'Administrator' : 'Användare'}
-                          {user.profile?.approved ? '' : ' (Väntar på godkännande)'}
+                          {user.profile?.role === 'admin' ? 'Administrator' : 'AnvÃ¤ndare'}
+                          {user.profile?.approved ? '' : ' (VÃ¤ntar pÃ¥ godkÃ¤nnande)'}
                         </p>
                       </div>
 
@@ -162,7 +162,7 @@ const Header: React.FC = () => {
                           }}
                         >
                           <Edit className="w-4 h-4" />
-                          <span>Skriv blogginlägg</span>
+                          <span>Skriv blogginlÃ¤gg</span>
                         </a>
                       )}
 
@@ -201,7 +201,7 @@ const Header: React.FC = () => {
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-hemp-600 transition-all duration-200 group-hover:w-full"></span>
                 </button>
               )}
-            </div>
+            </div> */}
 
             {/* Mobile menu button */}
             <button
@@ -230,8 +230,8 @@ const Header: React.FC = () => {
                   </a>
                 ))}
 
-                {/* Mobile Auth */}
-                <div className="border-t border-hemp-200 pt-4 mx-4">
+                {/* Mobile Auth - HIDDEN ON THIS BRANCH */}
+                {/* <div className="border-t border-hemp-200 pt-4 mx-4">
                   {user ? (
                     <div className="space-y-2">
                       <div className="px-4 py-2">
@@ -239,7 +239,7 @@ const Header: React.FC = () => {
                           {user.profile?.full_name || user.email}
                         </p>
                         <p className="text-xs text-hemp-600">
-                          {user.profile?.role === 'admin' ? 'Administrator' : 'Användare'}
+                          {user.profile?.role === 'admin' ? 'Administrator' : 'AnvÃ¤ndare'}
                         </p>
                       </div>
 
@@ -253,7 +253,7 @@ const Header: React.FC = () => {
                           }}
                         >
                           <Edit className="w-4 h-4" />
-                          <span>Skriv blogginlägg</span>
+                          <span>Skriv blogginlÃ¤gg</span>
                         </a>
                       )}
 
@@ -291,27 +291,27 @@ const Header: React.FC = () => {
                       <span>Logga in</span>
                     </button>
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
           )}
         </nav>
 
-        {/* Login Modal */}
-        <LoginModal 
+        {/* Login Modal - HIDDEN ON THIS BRANCH */}
+        {/* <LoginModal 
           isOpen={showLoginModal} 
           onClose={() => setShowLoginModal(false)} 
-        />
+        /> */}
 
-        {/* Click outside to close user menu */}
-        {showUserMenu && (
+        {/* Click outside to close user menu - HIDDEN ON THIS BRANCH */}
+        {/* {showUserMenu && (
           <div 
             className="fixed inset-0 z-40" 
             onClick={() => setShowUserMenu(false)}
           />
-        )}
+        )} */}
       </header>
-    </LoginModalContext.Provider>
+    // </LoginModalContext.Provider>
   );
 };
 
