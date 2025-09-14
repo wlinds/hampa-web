@@ -12,13 +12,37 @@ const Footer: React.FC = () => {
   ];
 
   const quickLinks = [
-    { name: 'Hem', href: '#hero' },
-    { name: 'Tjänster', href: '#services' },
-    { name: 'Om Hampa', href: '#about-hemp' },
-    { name: 'Frågor & Svar', href: '#faq' },
-    { name: 'Om Oss', href: '#about-us' },
-    { name: 'Kontakt', href: '#contact' },
+    { name: 'Hem', href: '/#hero' },
+    { name: 'Tjänster', href: '/#services' },
+    { name: 'Om Hampa', href: '/#about-hemp' },
+    { name: 'Frågor & Svar', href: '/#faq' },
+    { name: 'Om Oss', href: '/#about-us' },
+    { name: 'Kontakt', href: '/#contact' },
   ];
+
+  const handleLinkClick = (href: string) => {
+    if (href.startsWith('/#')) {
+      // Handle anchor links
+      if (window.location.pathname !== '/') {
+        // Navigate to landing page with hash
+        window.location.href = href;
+      } else {
+        // Already on landing page, just scroll
+        const element = document.querySelector(href.substring(1));
+        if (element) {
+          const headerHeight = 80;
+          const elementPosition = (element as HTMLElement).offsetTop - headerHeight;
+          window.scrollTo({
+            top: elementPosition,
+            behavior: 'smooth'
+          });
+        }
+      }
+    } else {
+      // Handle regular routes
+      window.location.href = href;
+    }
+  };
 
   return (
     <footer className="bg-gradient-to-b from-hemp-800 to-hemp-900 text-white">
@@ -71,11 +95,11 @@ const Footer: React.FC = () => {
               {services.map((service, index) => (
                 <li key={index}>
                   <a
-                    href="#services"
+                    href="/#services"
                     className="text-hemp-200 hover:text-white transition-colors duration-200 text-sm"
                     onClick={(e) => {
                       e.preventDefault();
-                      document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' });
+                      handleLinkClick('/#services');
                     }}
                   >
                     {service}
@@ -96,7 +120,7 @@ const Footer: React.FC = () => {
                     className="text-hemp-200 hover:text-white transition-colors duration-200 text-sm"
                     onClick={(e) => {
                       e.preventDefault();
-                      document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' });
+                      handleLinkClick(link.href);
                     }}
                   >
                     {link.name}
