@@ -29,6 +29,7 @@ const App: React.FC = () => {
                 <Route path="/blog/:slug/edit" element={<BlogEditorPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/kalkyl" element={<HempCalculatorPage />} />
+              </Routes>
             </main>
             <AdminNotification />
             <Footer />
