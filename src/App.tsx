@@ -6,6 +6,7 @@ import BlogListPage from './pages/BlogListPage';
 import BlogPostPage from './pages/BlogPostPage';
 import BlogEditorPage from './pages/BlogEditorPage';
 import AdminPage from './pages/AdminPage';
+import HempCalculatorPage from './pages/HempCalculatorPage';
 import Footer from './components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 import { LoginModalProvider } from './contexts/LoginModalContext';
@@ -21,14 +22,13 @@ const App: React.FC = () => {
             <Header />
             <main>
               <Routes>
-                
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/blog" element={<BlogListPage />} />
                 <Route path="/blog/new" element={<BlogEditorPage />} />
                 <Route path="/blog/:slug" element={<BlogPostPage />} />
                 <Route path="/blog/:slug/edit" element={<BlogEditorPage />} />
                 <Route path="/admin" element={<AdminPage />} />
-              </Routes>
+                <Route path="/kalkyl" element={<HempCalculatorPage />} />
             </main>
             <AdminNotification />
             <Footer />
