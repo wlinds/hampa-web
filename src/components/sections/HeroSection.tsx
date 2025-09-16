@@ -92,7 +92,7 @@ const HeroSection: React.FC = () => {
           <div className="relative animate-slide-up animation-delay-200">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="/images/hemp-field-1-small-d.jpeg"
+                src="/images/hemp-field-1-small-d.jpg"
                 alt="Närbiid av hampaplanta med frodigt grön vegetation"
                 className="w-full h-[500px] md:h-[600px] object-cover"
               />
