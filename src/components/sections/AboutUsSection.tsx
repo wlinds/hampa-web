@@ -5,7 +5,7 @@ const AboutUsSection: React.FC = () => {
   // const teamMembers = [
   //   {
   //     name: 'Calle',
-  //     role: 'Biodlare & Tidigare Hampabonde',
+  //     role: 'Biodlare & Hampabonde',
   //     description: 'Stor entusiast med djup kunskap om hampa och dess roll i ekosystemet.',
   //     image: '/images/team-calle.jpg'
   //   },
@@ -46,7 +46,7 @@ const AboutUsSection: React.FC = () => {
               </p>
               
               <p className="mb-6">
-                Vi som är Hampaoasen är alla stora entusiaster. Calle som är biodlare och tidigare hampabonde, Robin som är trädgårdsmästare och vidareutbildad inom grön urban utveckling, samt Akilles som är systemutvecklare.
+                Vi som är Hampaoasen är alla stora entusiaster med erfarenhet av odling. Calle som är biodlare, Robin som är trädgårdsmästare och vidareutbildad inom grön urban utveckling, samt Akilles som är systemutvecklare.
               </p>
 
               <p className="mb-6">
