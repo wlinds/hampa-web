@@ -18,29 +18,35 @@ const GallerySection: React.FC = () => {
       description: 'Cannabis Sativa som industrihampa'
     },
     {
+      src: '/images/hampa-pollen.jpeg',
+      alt: 'Hampafält sett från låg vinkel mot himlen',
+      title: 'Pollen & bin',
+      description: 'Hampans pollen bidrar till bins vitalitet'
+    },
+    {
       src: '/images/hemp-field-2.jpeg',
       alt: 'Hampafält sett från låg vinkel mot himlen',
       title: 'Hampans bindningskraft',
       description: 'Hampan binder 9-15 ton koldioxid på bara en säsong, lika mycket som en ung skog.'
     },
-    {
-      src: '/images/garden-strawberries.jpg',
-      alt: 'Jordgubbsplantor i blomning med vita blommor',
-      title: 'Biologisk mångfald',
-      description: 'Främjande av inhemska växter och pollinatörer'
-    },
-    {
-      src: '/images/garden-flowers.jpg',
-      alt: 'Lila blommor i trädgårdsmiljö',
-      title: 'Grönyteskötsel',
-      description: 'Estetisk och ekologisk trädgårdsdesign'
-    },
-    {
-      src: '/images/garden-mixed.jpg',
-      alt: 'Blandad trädgård med olika växter och blommor',
-      title: 'Hållbar odling',
-      description: 'Ekologiska metoder för diversifierade grönytor'
-    }
+    // {
+    //   src: '/images/garden-strawberries.jpg',
+    //   alt: 'Jordgubbsplantor i blomning med vita blommor',
+    //   title: 'Biologisk mångfald',
+    //   description: 'Främjande av inhemska växter och pollinatörer'
+    // },
+    // {
+    //   src: '/images/garden-flowers.jpg',
+    //   alt: 'Lila blommor i trädgårdsmiljö',
+    //   title: 'Grönyteskötsel',
+    //   description: 'Estetisk och ekologisk trädgårdsdesign'
+    // },
+    // {
+    //   src: '/images/garden-mixed.jpg',
+    //   alt: 'Blandad trädgård med olika växter och blommor',
+    //   title: 'Hållbar odling',
+    //   description: 'Ekologiska metoder för diversifierade grönytor'
+    // }
   ];
 
   const openModal = (index: number) => {
@@ -72,12 +78,12 @@ const GallerySection: React.FC = () => {
             Vårt arbete i bilder
           </h2>
           <p className="text-l text-hemp-700 leading-relaxed">
-            Se exempel på våra hampafält, biologisk mångfald och grönyteskötsel från verkliga projekt.
+            Se exempel på våra hampafält från verkliga projekt.
           </p>
         </div>
 
         {/* Image Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {images.map((image, index) => (
             <div
               key={index}
