@@ -19,7 +19,7 @@ const HempCalculatorPage: React.FC = () => {
   const [totalArea, setTotalArea] = useState(0);
   const [areaHectares, setAreaHectares] = useState(0);
   const [co2Binding, setCo2Binding] = useState({ min: 0, max: 0, avg: 0 });
-  const [hempSeeds, setHempSeeds] = useState({ min: 0, max: 0, avg: 0 });
+  // const [hempSeeds, setHempSeeds] = useState({ min: 0, max: 0, avg: 0 });
   const [showInstructions, setShowInstructions] = useState(false);
 
   const formatSwedishNumber = (num: number, decimals: number = 0): string => {
@@ -143,14 +143,14 @@ const HempCalculatorPage: React.FC = () => {
     const co2Max = hectares * 15;
     const co2Avg = hectares * 12;
     
-    const seedsMin = Math.round(hectares * 500);
-    const seedsMax = Math.round(hectares * 1200);
-    const seedsAvg = Math.round(hectares * 850);
+    // const seedsMin = Math.round(hectares * 500);
+    // const seedsMax = Math.round(hectares * 1200);
+    // const seedsAvg = Math.round(hectares * 850);
 
     setTotalArea(totalAreaMeters);
     setAreaHectares(hectares);
     setCo2Binding({ min: co2Min, max: co2Max, avg: co2Avg });
-    setHempSeeds({ min: seedsMin, max: seedsMax, avg: seedsAvg });
+    // setHempSeeds({ min: seedsMin, max: seedsMax, avg: seedsAvg });
   };
 
   const searchAddress = () => {
@@ -189,7 +189,7 @@ const HempCalculatorPage: React.FC = () => {
       setTotalArea(0);
       setAreaHectares(0);
       setCo2Binding({ min: 0, max: 0, avg: 0 });
-      setHempSeeds({ min: 0, max: 0, avg: 0 });
+      // setHempSeeds({ min: 0, max: 0, avg: 0 });
     }
   };
 
@@ -234,7 +234,6 @@ Mina beräkningar:
 - Total area: ${formatSwedishNumber(Math.round(totalArea))} m²
 - Area i hektar: ${formatSwedishNumber(areaHectares, 2)}
 - Uppskattad CO₂ bindning: ${formatSwedishNumber(co2Binding.min, 1)}-${formatSwedishNumber(co2Binding.max, 1)} ton per säsong
-- Uppskattad hampfrön: ${formatSwedishNumber(hempSeeds.min)}-${formatSwedishNumber(hempSeeds.max)} kg per säsong
 
 Jag skulle gärna få en kostnadsfri offert och mer information om era tjänster.
 
@@ -420,16 +419,6 @@ Med vänliga hälsningar`;
                     <div className="absolute bottom-0 right-0 w-20 h-20 bg-amber-200/10 rounded-full -mr-10 -mb-10"></div>
                     <div className="absolute top-2 left-2 w-2 h-2 bg-amber-400 rounded-full shadow-lg"></div>
                     <div className="absolute top-3 left-5 w-1 h-1 bg-amber-300 rounded-full"></div>
-                    <div className="relative">
-                      <div className="text-xs font-semibold text-amber-700 mb-1 uppercase tracking-wide">Hampafrön</div>
-                      <div className="text-lg font-bold text-amber-900 mb-1">
-                        {formatSwedishNumber(hempSeeds.min)} - {formatSwedishNumber(hempSeeds.max)}
-                      </div>
-                      <div className="text-xs text-amber-600 font-medium mb-1">kg per säsong</div>
-                      <div className="text-xs text-amber-500 bg-amber-50 px-2 py-1 rounded-full inline-block">
-                        Snittvärde {formatSwedishNumber(hempSeeds.avg)} kg
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
