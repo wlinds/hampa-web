@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sprout, Users, BookOpen, MapPin, Clock, Shield } from 'lucide-react';
+import { Sprout, MapPin, Clock, Shield } from 'lucide-react';
 
 const ServicesSection: React.FC = () => {
   const services = [
@@ -17,20 +17,20 @@ const ServicesSection: React.FC = () => {
       features: ['Hampan bidrar med väldigt höga värden av ekosystemtjänster under processen.'],
       color: 'earth'
     },
-    {
-      icon: Users,
-      title: 'Rådgivning kring biologisk mångfald',
-      description: 'Personlig rådgivning för att öka biologisk mångfald på era ytor. Kostnadsfri offert.',
-      features: ['Besök på plats', 'Åtgärdsförslag', 'Skötselplan', 'Skiss med placeringar'],
-      color: 'hemp'
-    },
-    {
-      icon: BookOpen,
-      title: 'Grönyteskötsel utifrån biologisk mångfald',
-      description: 'Genom ekologisk grönyteskötselmetod och främjandet av diversiteten kring inhemska arter ökar vi den biologiska mångfalden på er yta samtidigt som vi tar hänsyn till en vacker estetik.',
-      features: ['Vi förvandlar eftersatta grönytor.'],
-      color: 'earth'
-    }
+    // {
+    //   icon: Users,
+    //   title: 'Rådgivning kring biologisk mångfald',
+    //   description: 'Personlig rådgivning för att öka biologisk mångfald på era ytor. Kostnadsfri offert.',
+    //   features: ['Besök på plats', 'Åtgärdsförslag', 'Skötselplan', 'Skiss med placeringar'],
+    //   color: 'hemp'
+    // },
+    // {
+    //   icon: BookOpen,
+    //   title: 'Grönyteskötsel utifrån biologisk mångfald',
+    //   description: 'Genom ekologisk grönyteskötselmetod och främjandet av diversiteten kring inhemska arter ökar vi den biologiska mångfalden på er yta samtidigt som vi tar hänsyn till en vacker estetik.',
+    //   features: ['Vi förvandlar eftersatta grönytor.'],
+    //   color: 'earth'
+    // }
   ];
 
   const consultationOptions = [
