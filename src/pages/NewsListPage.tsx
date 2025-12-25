@@ -236,7 +236,7 @@ const NewsListPage: React.FC = () => {
 
                   {/* Excerpt */}
                   <p className="text-hemp-600 mb-4 line-clamp-3">
-                    {post.excerpt || (post.content ? generateExcerpt(post.content) : 'Las mer...')}
+                    {post.excerpt || (post.content ? generateExcerpt(post.content) : 'Läs mer...')}
                   </p>
 
                   {/* Footer */}
@@ -249,7 +249,7 @@ const NewsListPage: React.FC = () => {
                         href={`/nyheter/${post.slug}`}
                         className="text-hemp-600 hover:text-hemp-800 text-sm font-medium transition-colors duration-200"
                       >
-                        Las mer
+                        Läs mer
                       </a>
                       {showUserPosts && user?.id === post.author_id && (
                         <a
