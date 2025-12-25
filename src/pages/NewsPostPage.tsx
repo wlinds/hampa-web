@@ -243,7 +243,7 @@ const NewsPostPage: React.FC = () => {
               Gillade du den har nyheten?
             </h3>
             <p className="text-hemp-700 mb-4">
-              Kontakta oss for att fa tillgang till var nyhetsplattform och dela dina kunskaper om hampa, biologisk mangfald och hallbar odling.
+              Kontakta oss för att få tillgång till vår nyhetsplattform och dela dina kunskaper om hampa, biologisk mångfald och hållbar odling.
             </p>
             <Button
               variant="secondary"

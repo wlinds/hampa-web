@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Leaf } from 'lucide-react';
+import { Menu, X, Leaf, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useLoginModal } from '../contexts/LoginModalContext';
+import { LoginModal } from './auth/LoginModal';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { user, signOut } = useAuth();
+  const { isLoginModalOpen, showLoginModal, hideLoginModal } = useLoginModal();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,6 +108,29 @@ const Header: React.FC = () => {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-hemp-600 transition-all duration-200 group-hover:w-full"></span>
               </a>
             ))}
+
+            {/* Auth Button */}
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-hemp-600 text-sm">
+                  {user.profile?.full_name || user.email}
+                </span>
+                <button
+                  onClick={() => signOut()}
+                  className="flex items-center space-x-1 text-hemp-600 hover:text-hemp-800 transition-colors duration-200"
+                  title="Logga ut"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={showLoginModal}
+                className="text-hemp-600 hover:text-hemp-800 font-medium transition-colors duration-200"
+              >
+                Logga in
+              </button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -131,10 +159,42 @@ const Header: React.FC = () => {
                   {item.name}
                 </a>
               ))}
+
+              {/* Mobile Auth Button */}
+              {user ? (
+                <div className="flex items-center justify-between py-2 px-4 border-t border-hemp-200 mt-2 pt-4">
+                  <span className="text-hemp-600 text-sm">
+                    {user.profile?.full_name || user.email}
+                  </span>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center space-x-1 text-hemp-600 hover:text-hemp-800 transition-colors duration-200"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Logga ut</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    showLoginModal();
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-hemp-600 hover:text-hemp-800 font-medium py-2 px-4 transition-colors duration-200"
+                >
+                  Logga in
+                </button>
+              )}
             </div>
           </div>
         )}
       </nav>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={hideLoginModal} />
     </header>
   );
 };
