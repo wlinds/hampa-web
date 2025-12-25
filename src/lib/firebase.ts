@@ -354,20 +354,36 @@ export const getPublishedPosts = async (): Promise<BlogPost[]> => {
 export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
   const cacheKey = `post_${slug}`;
   const cached = blogCache.get(cacheKey);
-  
+
   if (cached && Date.now() - cached.timestamp < BLOG_CACHE_DURATION) {
     console.log(`Using cached post: ${slug}`);
     return cached.data;
   }
 
   try {
-    const q = query(
-      collection(db, 'blog_posts'),
-      where('slug', '==', slug)
-    );
+    // Check if user is authenticated
+    const currentUser = auth.currentUser;
+
+    // For public access, only query published posts
+    // For authenticated users, we can query any post (they might be the author)
+    let q;
+    if (currentUser) {
+      // Authenticated user - can view any post (author check happens in UI)
+      q = query(
+        collection(db, 'blog_posts'),
+        where('slug', '==', slug)
+      );
+    } else {
+      // Public access - only published posts
+      q = query(
+        collection(db, 'blog_posts'),
+        where('slug', '==', slug),
+        where('status', '==', 'published')
+      );
+    }
 
     const querySnapshot = await getDocs(q);
-    
+
     if (querySnapshot.empty) {
       return null;
     }
