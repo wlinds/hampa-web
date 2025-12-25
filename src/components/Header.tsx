@@ -19,6 +19,7 @@ const Header: React.FC = () => {
     { name: 'Tjänster', href: '/#services' },
     { name: 'Om Hampa', href: '/#about-hemp' },
     { name: 'Kalkylator', href: '/kalkyl' },
+    { name: 'Nyheter', href: '/nyheter' },
     { name: 'Bildgalleri', href: '/#gallery' },
     { name: 'Frågor & Svar', href: '/#faq' },
     { name: 'Om Oss', href: '/#about-us' },

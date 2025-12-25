@@ -2,11 +2,12 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import LandingPage from './pages/LandingPage';
-import BlogListPage from './pages/BlogListPage';
-import BlogPostPage from './pages/BlogPostPage';
-import BlogEditorPage from './pages/BlogEditorPage';
+import NewsListPage from './pages/NewsListPage';
+import NewsPostPage from './pages/NewsPostPage';
+import NewsEditorPage from './pages/NewsEditorPage';
 import AdminPage from './pages/AdminPage';
 import HempCalculatorPage from './pages/HempCalculatorPage';
+import NotFoundPage from './pages/NotFoundPage';
 import Footer from './components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 import { LoginModalProvider } from './contexts/LoginModalContext';
@@ -23,12 +24,13 @@ const App: React.FC = () => {
             <main>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/blog" element={<BlogListPage />} />
-                <Route path="/blog/new" element={<BlogEditorPage />} />
-                <Route path="/blog/:slug" element={<BlogPostPage />} />
-                <Route path="/blog/:slug/edit" element={<BlogEditorPage />} />
+                <Route path="/nyheter" element={<NewsListPage />} />
+                <Route path="/nyheter/new" element={<NewsEditorPage />} />
+                <Route path="/nyheter/:slug" element={<NewsPostPage />} />
+                <Route path="/nyheter/:slug/edit" element={<NewsEditorPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/kalkyl" element={<HempCalculatorPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </main>
             <AdminNotification />

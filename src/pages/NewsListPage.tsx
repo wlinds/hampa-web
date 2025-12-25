@@ -1,4 +1,4 @@
-// src/pages/BlogListPage.tsx
+// src/pages/NewsListPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Calendar, User, Plus, Edit, Eye } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,25 +14,25 @@ import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '../components/ui/ErrorDisplay';
 import { Button } from '../components/ui/Button';
 
-const BlogListPage: React.FC = () => {
+const NewsListPage: React.FC = () => {
   const { user } = useAuth();
   const [showUserPosts, setShowUserPosts] = useState(false);
-  
+
   // Reset to public view when user logs out
   useEffect(() => {
     if (!user) {
       setShowUserPosts(false);
     }
   }, [user]);
-  
+
   // Fetch published posts for public view
-  const { 
-    data: publishedPosts, 
-    loading: publishedLoading, 
+  const {
+    data: publishedPosts,
+    loading: publishedLoading,
     error: publishedError,
     retryCount: publishedRetryCount,
     maxRetries: publishedMaxRetries,
-    retry: retryPublished 
+    retry: retryPublished
   } = useApiWithRetry<BlogPost[]>(
     async () => {
       return await getPublishedPosts();
@@ -42,11 +42,11 @@ const BlogListPage: React.FC = () => {
   );
 
   // Fetch user posts if logged in and showing user posts
-  const { 
-    data: userPosts, 
-    loading: userLoading, 
+  const {
+    data: userPosts,
+    loading: userLoading,
     error: userError,
-    retry: retryUser 
+    retry: retryUser
   } = useApiWithRetry<any[]>(
     async () => {
       if (!user?.id || !showUserPosts) return [];
@@ -64,7 +64,7 @@ const BlogListPage: React.FC = () => {
   if (error && !loading) {
     // Handle specific Firebase permission errors
     const isPermissionError = error.includes('permissions') || error.includes('permission-denied');
-    
+
     if (isPermissionError && !user) {
       return (
         <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
@@ -74,11 +74,11 @@ const BlogListPage: React.FC = () => {
                 <Edit className="w-8 h-8 text-hemp-600" />
               </div>
               <h2 className="text-xl font-semibold text-hemp-900 mb-2">
-                Bloggen kommer snart
+                Nyheter kommer snart
               </h2>
               <p className="text-hemp-600 mb-6">
-                Vi arbetar på att göra vår blogg tillgänglig för alla besökare. 
-                Under tiden kan du kontakta oss för mer information om våra tjänster.
+                Vi arbetar pa att gora vara nyheter tillgangliga for alla besokare.
+                Under tiden kan du kontakta oss for mer information om vara tjanster.
               </p>
               <Button
                 as="a"
@@ -92,10 +92,10 @@ const BlogListPage: React.FC = () => {
         </div>
       );
     }
-    
+
     return (
       <ErrorDisplay
-        title="Problem med att ladda blogginläggen"
+        title="Problem med att ladda nyheterna"
         message={error}
         onRetry={showUserPosts && user ? retryUser : retryPublished}
         retryLoading={loading}
@@ -111,12 +111,12 @@ const BlogListPage: React.FC = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h1 className="text-3xl md:text-5xl font-bold text-hemp-900 mb-6 leading-tight">
-            {showUserPosts ? 'Mina Blogginlägg' : 'Hampaoasen Blogg'}
+            {showUserPosts ? 'Mina Nyheter' : 'Nyheter'}
           </h1>
           <p className="text-xl text-hemp-700 leading-relaxed">
-            {showUserPosts 
-              ? 'Hantera dina blogginlägg och skapa nytt innehåll'
-              : 'Läs om hampa, biologisk mångfald och hållbar odling'
+            {showUserPosts
+              ? 'Hantera dina nyheter och skapa nytt innehall'
+              : 'Las om hampa, biologisk mangfald och hallbar odling'
             }
           </p>
         </div>
@@ -129,24 +129,24 @@ const BlogListPage: React.FC = () => {
                 <button
                   onClick={() => setShowUserPosts(false)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    !showUserPosts 
-                      ? 'bg-hemp-600 text-white shadow-sm' 
+                    !showUserPosts
+                      ? 'bg-hemp-600 text-white shadow-sm'
                       : 'text-hemp-600 hover:text-hemp-800'
                   }`}
                 >
                   <Eye className="w-4 h-4 mr-2 inline" />
-                  Alla inlägg
+                  Alla nyheter
                 </button>
                 <button
                   onClick={() => setShowUserPosts(true)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                    showUserPosts 
-                      ? 'bg-hemp-600 text-white shadow-sm' 
+                    showUserPosts
+                      ? 'bg-hemp-600 text-white shadow-sm'
                       : 'text-hemp-600 hover:text-hemp-800'
                   }`}
                 >
                   <Edit className="w-4 h-4 mr-2 inline" />
-                  Mina inlägg
+                  Mina nyheter
                 </button>
               </div>
             </div>
@@ -154,12 +154,12 @@ const BlogListPage: React.FC = () => {
             {user.profile?.approved && (
               <Button
                 as="a"
-                href="/blog/new"
+                href="/nyheter/new"
                 variant="primary"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Nytt inlägg
+                Ny nyhet
               </Button>
             )}
           </div>
@@ -202,8 +202,8 @@ const BlogListPage: React.FC = () => {
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        {post.published_at 
-                          ? formatDate(post.published_at) 
+                        {post.published_at
+                          ? formatDate(post.published_at)
                           : `Uppdaterad ${formatDate(post.updated_at)}`
                         }
                       </span>
@@ -218,8 +218,8 @@ const BlogListPage: React.FC = () => {
                     )}
                     {showUserPosts && (
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        post.status === 'published' 
-                          ? 'bg-green-100 text-green-800' 
+                        post.status === 'published'
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
                         {post.status === 'published' ? 'Publicerad' : 'Utkast'}
@@ -229,31 +229,31 @@ const BlogListPage: React.FC = () => {
 
                   {/* Title */}
                   <h2 className="text-xl font-semibold text-hemp-900 mb-3 group-hover:text-hemp-700 transition-colors duration-200 line-clamp-2">
-                    <a href={`/blog/${post.slug}`} className="hover:underline">
+                    <a href={`/nyheter/${post.slug}`} className="hover:underline">
                       {post.title}
                     </a>
                   </h2>
 
                   {/* Excerpt */}
                   <p className="text-hemp-600 mb-4 line-clamp-3">
-                    {post.excerpt || (post.content ? generateExcerpt(post.content) : 'Läs mer...')}
+                    {post.excerpt || (post.content ? generateExcerpt(post.content) : 'Las mer...')}
                   </p>
 
                   {/* Footer */}
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-hemp-500">
-                      {post.content && `${calculateReadingTime(post.content)} min läsning`}
+                      {post.content && `${calculateReadingTime(post.content)} min lasning`}
                     </div>
                     <div className="flex space-x-2">
                       <a
-                        href={`/blog/${post.slug}`}
+                        href={`/nyheter/${post.slug}`}
                         className="text-hemp-600 hover:text-hemp-800 text-sm font-medium transition-colors duration-200"
                       >
-                        Läs mer →
+                        Las mer
                       </a>
                       {showUserPosts && user?.id === post.author_id && (
                         <a
-                          href={`/blog/${post.slug}/edit`}
+                          href={`/nyheter/${post.slug}/edit`}
                           className="text-hemp-600 hover:text-hemp-800 text-sm font-medium transition-colors duration-200"
                         >
                           Redigera
@@ -274,22 +274,22 @@ const BlogListPage: React.FC = () => {
               <Edit className="w-8 h-8 text-hemp-600" />
             </div>
             <h3 className="text-xl font-semibold text-hemp-900 mb-2">
-              {showUserPosts ? 'Inga blogginlägg än' : 'Inga blogginlägg hittades'}
+              {showUserPosts ? 'Inga nyheter an' : 'Inga nyheter hittades'}
             </h3>
             <p className="text-hemp-600 mb-6">
-              {showUserPosts 
-                ? 'Du har inte skrivit några blogginlägg än. Skapa ditt första inlägg!'
-                : 'Det finns inga publicerade blogginlägg för tillfället.'
+              {showUserPosts
+                ? 'Du har inte skrivit nagra nyheter an. Skapa din forsta nyhet!'
+                : 'Det finns inga publicerade nyheter for tillfallet.'
               }
             </p>
             {showUserPosts && user?.profile?.approved && (
               <Button
                 as="a"
-                href="/blog/new"
+                href="/nyheter/new"
                 variant="primary"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Skriv ditt första inlägg
+                Skriv din forsta nyhet
               </Button>
             )}
           </div>
@@ -299,10 +299,10 @@ const BlogListPage: React.FC = () => {
         {!user && !loading && (
           <div className="mt-16 p-8 bg-gradient-to-r from-hemp-600 to-hemp-700 rounded-2xl text-white text-center">
             <h3 className="text-2xl font-bold mb-4">
-              Vill du också skriva om hampa och hållbarhet?
+              Vill du ocksa skriva om hampa och hallbarhet?
             </h3>
             <p className="text-hemp-100 mb-6 max-w-2xl mx-auto">
-              Kontakta oss för att få tillgång till vår bloggplattform och dela dina kunskaper om hampa, biologisk mångfald och hållbar odling.
+              Kontakta oss for att fa tillgang till var nyhetsplattform och dela dina kunskaper om hampa, biologisk mangfald och hallbar odling.
             </p>
             <Button
               variant="secondary"
@@ -319,4 +319,4 @@ const BlogListPage: React.FC = () => {
   );
 };
 
-export default BlogListPage;
+export default NewsListPage;

@@ -339,14 +339,14 @@ export const getPublishedPosts = async (): Promise<BlogPost[]> => {
     
     // Provide more specific error messages
     if (error.code === 'permission-denied') {
-      throw new Error('Blogginläggen är för tillfället inte tillgängliga för allmänheten. Kontakta oss för mer information.');
+      throw new Error('Nyheterna är för tillfället inte tillgängliga för allmänheten. Kontakta oss för mer information.');
     } else if (error.code === 'unavailable') {
-      throw new Error('Bloggtjänsten är tillfälligt otillgänglig. Försök igen senare.');
+      throw new Error('Nyhetstjänsten är tillfälligt otillgänglig. Försok igen senare.');
     } else if (error.code === 'failed-precondition') {
       console.warn('Compound index might be missing. Using simpler query.');
-      throw new Error('Bloggdatabasen konfigureras. Försök igen om en stund.');
+      throw new Error('Nyhetsdatabasen konfigureras. Försok igen om en stund.');
     } else {
-      throw new Error(`Problem med att ladda blogginlägg: ${error.message}`);
+      throw new Error(`Problem med att ladda nyheter: ${error.message}`);
     }
   }
 };

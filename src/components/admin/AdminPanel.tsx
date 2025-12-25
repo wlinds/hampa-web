@@ -212,7 +212,7 @@ const AdminPanelContent: React.FC = () => {
               <ul className="space-y-1 text-hemp-100">
                 <li>• Godkänna nya användare</li>
                 <li>• Tilldela admin-roller</li>
-                <li>• Hantera blogginlägg</li>
+                <li>• Hantera nyheter</li>
                 <li>• Administrera systemet</li>
               </ul>
             </div>

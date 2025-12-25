@@ -1,4 +1,4 @@
-// src/pages/BlogPostPage.tsx
+// src/pages/NewsPostPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, User, Edit, Trash2, AlertCircle } from 'lucide-react';
@@ -17,22 +17,22 @@ import { ErrorDisplay } from '../components/ui/ErrorDisplay';
 import { BackButton } from '../components/ui/BackButton';
 import { Button } from '../components/ui/Button';
 
-const BlogPostPage: React.FC = () => {
+const NewsPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth(); // user can be null for non-logged in users
   const navigate = useNavigate();
-  
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   // Use the custom hook for API call with retry logic
-  const { 
-    data: post, 
-    loading, 
-    error, 
-    retryCount, 
-    maxRetries, 
-    retry 
+  const {
+    data: post,
+    loading,
+    error,
+    retryCount,
+    maxRetries,
+    retry
   } = useApiWithRetry<BlogPost | null>(
     async () => {
       if (!slug) throw new Error('Ingen slug angiven');
@@ -64,7 +64,7 @@ const BlogPostPage: React.FC = () => {
       title: post.meta_title || post.title,
       description: post.meta_description || post.excerpt || '',
       image: post.featured_image || undefined,
-      url: `https://hampaoasen.se/blog/${post.slug}`,
+      url: `https://hampaoasen.se/nyheter/${post.slug}`,
       type: 'article' as const,
       publishedTime: post.published_at || undefined,
       modifiedTime: post.updated_at,
@@ -96,14 +96,14 @@ const BlogPostPage: React.FC = () => {
 
   const handleDelete = async () => {
     if (!post || !user) return; // Ensure user is logged in
-    
+
     setDeleting(true);
     try {
       await deletePost(post.id);
-      navigate('/blog');
+      navigate('/nyheter');
     } catch (error) {
       console.error('Error deleting post:', error);
-      alert('Fel vid borttagning av inlägg');
+      alert('Fel vid borttagning av nyhet');
     } finally {
       setDeleting(false);
       setShowDeleteConfirm(false);
@@ -114,14 +114,14 @@ const BlogPostPage: React.FC = () => {
   if (error && !loading) {
     return (
       <ErrorDisplay
-        title="Problem med att ladda blogginlägget"
+        title="Problem med att ladda nyheten"
         message={error}
         onRetry={retry}
         retryLoading={loading}
         retryCount={retryCount}
         maxRetries={maxRetries}
-        backTo="/blog"
-        backText="Tillbaka till bloggen"
+        backTo="/nyheter"
+        backText="Tillbaka till nyheterna"
       />
     );
   }
@@ -140,20 +140,20 @@ const BlogPostPage: React.FC = () => {
     return (
       <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
         <div className="container-max section-padding py-20">
-          <BackButton to="/blog" className="mb-8">
-            Tillbaka till bloggen
+          <BackButton to="/nyheter" className="mb-8">
+            Tillbaka till nyheterna
           </BackButton>
-          
+
           <div className="text-center">
             <AlertCircle className="w-16 h-16 text-hemp-600 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-hemp-900 mb-2">
-              Blogginlägg hittades inte
+              Nyheten hittades inte
             </h1>
             <p className="text-hemp-600 mb-6">
-              Det blogginlägg du letar efter finns inte eller har tagits bort.
+              Den nyhet du letar efter finns inte eller har tagits bort.
             </p>
-            <Button as="a" href="/blog">
-              Tillbaka till bloggen
+            <Button as="a" href="/nyheter">
+              Tillbaka till nyheterna
             </Button>
           </div>
         </div>
@@ -165,8 +165,8 @@ const BlogPostPage: React.FC = () => {
     <div className="min-h-screen pt-20 bg-gradient-to-b from-hemp-50 to-white">
       <article className="container-max section-padding py-20">
         {/* Back Button */}
-        <BackButton to="/blog" className="mb-8">
-          Tillbaka till bloggen
+        <BackButton to="/nyheter" className="mb-8">
+          Tillbaka till nyheterna
         </BackButton>
 
         {/* Header */}
@@ -194,7 +194,7 @@ const BlogPostPage: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <Button
                 as="a"
-                href={`/blog/${post.slug}/edit`}
+                href={`/nyheter/${post.slug}/edit`}
                 variant="secondary"
                 size="sm"
               >
@@ -230,7 +230,7 @@ const BlogPostPage: React.FC = () => {
 
         {/* Content */}
         <div className="max-w-4xl mx-auto">
-          <div 
+          <div
             className="prose prose-lg max-w-none prose-hemp"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
@@ -240,13 +240,13 @@ const BlogPostPage: React.FC = () => {
         {!user && (
           <div className="max-w-4xl mx-auto mt-12 p-6 bg-hemp-50 border border-hemp-200 rounded-xl">
             <h3 className="text-lg font-semibold text-hemp-900 mb-2">
-              Gillade du det här inlägget?
+              Gillade du den har nyheten?
             </h3>
             <p className="text-hemp-700 mb-4">
-              Kontakta oss för att få tillgång till vår bloggplattform och dela dina kunskaper om hampa, biologisk mångfald och hållbar odling.
+              Kontakta oss for att fa tillgang till var nyhetsplattform och dela dina kunskaper om hampa, biologisk mangfald och hallbar odling.
             </p>
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               size="sm"
               as="a"
               href="/#contact"
@@ -261,10 +261,10 @@ const BlogPostPage: React.FC = () => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
               <h3 className="text-lg font-semibold text-red-900 mb-4">
-                Ta bort blogginlägg
+                Ta bort nyhet
               </h3>
               <p className="text-gray-600 mb-6">
-                Är du säker på att du vill ta bort detta blogginlägg? Denna åtgärd kan inte ångras.
+                Ar du saker pa att du vill ta bort denna nyhet? Denna atgard kan inte angras.
               </p>
               <div className="flex space-x-3">
                 <Button
@@ -292,4 +292,4 @@ const BlogPostPage: React.FC = () => {
   );
 };
 
-export default BlogPostPage;
+export default NewsPostPage;

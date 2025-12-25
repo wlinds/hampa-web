@@ -1,4 +1,4 @@
-// src/pages/BlogEditorPage.tsx
+// src/pages/NewsEditorPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Upload, Image as ImageIcon, Bold, Italic, List, Link2, Type, X } from 'lucide-react';
@@ -10,15 +10,15 @@ import { LoadingSkeleton } from '../components/ui/LoadingSkeleton';
 import { BackButton } from '../components/ui/BackButton';
 import { Button } from '../components/ui/Button';
 
-const BlogEditorPage: React.FC = () => {
+const NewsEditorPage: React.FC = () => {
   return (
     <ProtectedRoute requireApproval>
-      <BlogEditor />
+      <NewsEditor />
     </ProtectedRoute>
   );
 };
 
-const BlogEditor: React.FC = () => {
+const NewsEditor: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -67,11 +67,11 @@ const BlogEditor: React.FC = () => {
               meta_description: post.meta_description || ''
             });
           } else {
-            navigate('/blog');
+            navigate('/nyheter');
           }
         } catch (error) {
           console.error('Error fetching post:', error);
-          navigate('/blog');
+          navigate('/nyheter');
         } finally {
           setLoading(false);
         }
@@ -97,13 +97,13 @@ const BlogEditor: React.FC = () => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Endast bildfiler är tillåtna');
+      alert('Endast bildfiler ar tillatna');
       return;
     }
 
     // Validate file size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
-      alert('Bilden är för stor. Maximal storlek är 50MB.');
+      alert('Bilden ar for stor. Maximal storlek ar 50MB.');
       return;
     }
 
@@ -129,11 +129,11 @@ const BlogEditor: React.FC = () => {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const currentContent = formData.content;
-    
+
     const newContent = currentContent.substring(0, start) + textToInsert + currentContent.substring(end);
-    
+
     setFormData(prev => ({ ...prev, content: newContent }));
-    
+
     // Set cursor position after inserted text
     setTimeout(() => {
       textarea.focus();
@@ -146,13 +146,13 @@ const BlogEditor: React.FC = () => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Endast bildfiler är tillåtna');
+      alert('Endast bildfiler ar tillatna');
       return;
     }
 
     // Validate file size (50MB limit)
     if (file.size > 50 * 1024 * 1024) {
-      alert('Bilden är för stor. Maximal storlek är 50MB.');
+      alert('Bilden ar for stor. Maximal storlek ar 50MB.');
       return;
     }
 
@@ -183,7 +183,7 @@ const BlogEditor: React.FC = () => {
 
   const handleSave = async (publishNow = false) => {
     if (!user || !formData.title.trim() || !formData.content.trim()) {
-      alert('Titel och innehåll är obligatoriska');
+      alert('Titel och innehall ar obligatoriska');
       return;
     }
 
@@ -205,10 +205,10 @@ const BlogEditor: React.FC = () => {
         await createPost(postData);
       }
 
-      navigate(`/blog/${formData.slug}`);
+      navigate(`/nyheter/${formData.slug}`);
     } catch (error) {
       console.error('Error saving post:', error);
-      alert('Fel vid sparande av inlägg');
+      alert('Fel vid sparande av nyhet');
     } finally {
       setSaving(false);
     }
@@ -229,8 +229,8 @@ const BlogEditor: React.FC = () => {
       <div className="container-max section-padding py-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <BackButton to="/blog">
-            Tillbaka till bloggen
+          <BackButton to="/nyheter">
+            Tillbaka till nyheterna
           </BackButton>
 
           <div className="flex items-center space-x-3">
@@ -238,9 +238,9 @@ const BlogEditor: React.FC = () => {
               onClick={() => setPreviewMode(!previewMode)}
               variant="secondary"
             >
-              {previewMode ? 'Redigera' : 'Förhandsgranska'}
+              {previewMode ? 'Redigera' : 'Forhandsgranska'}
             </Button>
-            
+
             <Button
               onClick={() => handleSave(false)}
               loading={saving}
@@ -263,7 +263,7 @@ const BlogEditor: React.FC = () => {
           {/* Main Editor */}
           <div className="lg:col-span-2 space-y-6">
             {previewMode ? (
-              <BlogPreview formData={formData} />
+              <NewsPreview formData={formData} />
             ) : (
               <>
                 {/* Title */}
@@ -297,7 +297,7 @@ const BlogEditor: React.FC = () => {
                     placeholder="url-vanlig-slug"
                   />
                   <p className="text-xs text-hemp-600 mt-1">
-                    Används i URL:en: hampaoasen.se/blog/{formData.slug || 'din-slug'}
+                    Anvands i URL:en: hampaoasen.se/nyheter/{formData.slug || 'din-slug'}
                   </p>
                 </div>
 
@@ -321,7 +321,7 @@ const BlogEditor: React.FC = () => {
                       <Upload className="w-4 h-4 mr-2" />
                       {imageUploading ? 'Laddar upp...' : 'Ladda upp bild'}
                     </label>
-                    
+
                     {formData.featured_image && (
                       <div className="relative">
                         <img
@@ -333,7 +333,7 @@ const BlogEditor: React.FC = () => {
                           onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
                           className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded"
                         >
-                          ×
+                          x
                         </button>
                       </div>
                     )}
@@ -343,9 +343,9 @@ const BlogEditor: React.FC = () => {
                 {/* Content Editor */}
                 <div>
                   <label htmlFor="content-editor" className="block text-sm font-medium text-hemp-900 mb-2">
-                    Innehåll *
+                    Innehall *
                   </label>
-                  
+
                   {/* Toolbar */}
                   <div className="border border-hemp-200 rounded-t-lg bg-hemp-50 p-2 flex flex-wrap gap-2">
                     <button
@@ -382,20 +382,20 @@ const BlogEditor: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => insertAtCursor('[länktext](https://example.com)')}
+                      onClick={() => insertAtCursor('[lanktext](https://example.com)')}
                       className="p-2 hover:bg-hemp-100 rounded text-hemp-700"
-                      title="Länk"
+                      title="Lank"
                     >
                       <Link2 className="w-4 h-4" />
                     </button>
-                    
+
                     {/* Enhanced Image Button with Dropdown */}
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setShowImageModal(true)}
                         className="p-2 hover:bg-hemp-100 rounded text-hemp-700"
-                        title="Lägg till bild"
+                        title="Lagg till bild"
                       >
                         <ImageIcon className="w-4 h-4" />
                       </button>
@@ -409,18 +409,18 @@ const BlogEditor: React.FC = () => {
                     onChange={handleChange}
                     rows={20}
                     className="w-full px-4 py-3 border-l border-r border-b border-hemp-200 rounded-b-lg focus:ring-2 focus:ring-hemp-500 focus:border-transparent transition-all duration-200 font-mono text-sm"
-                    placeholder="Skriv ditt innehåll här... Du kan använda Markdown-formatering."
+                    placeholder="Skriv ditt innehall har... Du kan anvanda Markdown-formatering."
                   />
-                  
+
                   <div className="mt-2 text-xs text-hemp-600">
-                    <p>Tips: Använd Markdown för formatering:</p>
+                    <p>Tips: Anvand Markdown for formatering:</p>
                     <ul className="list-disc list-inside mt-1 space-y-1">
-                      <li>**fet text** för <strong>fet text</strong></li>
-                      <li>*kursiv text* för <em>kursiv text</em></li>
-                      <li>## Rubrik för rubriker</li>
-                      <li>- Lista för punktlistor</li>
-                      <li>[länktext](url) för länkar</li>
-                      <li>![alt text](bildurl) för bilder</li>
+                      <li>**fet text** for <strong>fet text</strong></li>
+                      <li>*kursiv text* for <em>kursiv text</em></li>
+                      <li>## Rubrik for rubriker</li>
+                      <li>- Lista for punktlistor</li>
+                      <li>[lanktext](url) for lankar</li>
+                      <li>![alt text](bildurl) for bilder</li>
                     </ul>
                   </div>
                 </div>
@@ -437,7 +437,7 @@ const BlogEditor: React.FC = () => {
                     onChange={handleChange}
                     rows={3}
                     className="w-full px-4 py-3 border border-hemp-200 rounded-lg focus:ring-2 focus:ring-hemp-500 focus:border-transparent transition-all duration-200"
-                    placeholder="En kort sammanfattning som visas i blogglistan..."
+                    placeholder="En kort sammanfattning som visas i nyhetslistan..."
                   />
                 </div>
               </>
@@ -448,8 +448,8 @@ const BlogEditor: React.FC = () => {
           <div className="space-y-6">
             {/* SEO Settings */}
             <div className="bg-white p-6 rounded-lg border border-hemp-200">
-              <h3 className="text-lg font-semibold text-hemp-900 mb-4">SEO-inställningar</h3>
-              
+              <h3 className="text-lg font-semibold text-hemp-900 mb-4">SEO-installningar</h3>
+
               <div className="space-y-4">
                 <div>
                   <label htmlFor="meta_title" className="block text-sm font-medium text-hemp-900 mb-2">
@@ -462,7 +462,7 @@ const BlogEditor: React.FC = () => {
                     value={formData.meta_title}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-hemp-200 rounded focus:ring-2 focus:ring-hemp-500 focus:border-transparent"
-                    placeholder="Optimerad titel för sökmotorer"
+                    placeholder="Optimerad titel for sokmotorer"
                   />
                 </div>
 
@@ -477,7 +477,7 @@ const BlogEditor: React.FC = () => {
                     onChange={handleChange}
                     rows={3}
                     className="w-full px-3 py-2 border border-hemp-200 rounded focus:ring-2 focus:ring-hemp-500 focus:border-transparent"
-                    placeholder="Beskrivning som visas i sökresultat"
+                    placeholder="Beskrivning som visas i sokresultat"
                   />
                 </div>
               </div>
@@ -486,7 +486,7 @@ const BlogEditor: React.FC = () => {
             {/* Status */}
             <div className="bg-white p-6 rounded-lg border border-hemp-200">
               <h3 className="text-lg font-semibold text-hemp-900 mb-4">Status</h3>
-              
+
               <select
                 name="status"
                 value={formData.status}
@@ -561,7 +561,7 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-hemp-100">
-          <h3 className="text-lg font-semibold text-hemp-900">Lägg till bild</h3>
+          <h3 className="text-lg font-semibold text-hemp-900">Lagg till bild</h3>
           <button
             onClick={onClose}
             className="p-1 hover:bg-hemp-100 rounded transition-colors duration-200"
@@ -599,7 +599,7 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
           {activeTab === 'upload' ? (
             <div className="space-y-4">
               <p className="text-sm text-hemp-600">
-                Välj en bildfil från din dator att ladda upp.
+                Valj en bildfil fran din dator att ladda upp.
               </p>
               <input
                 type="file"
@@ -652,7 +652,7 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                   variant="primary"
                   className="flex-1"
                 >
-                  Lägg till
+                  Lagg till
                 </Button>
               </div>
             </div>
@@ -664,15 +664,15 @@ const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
 };
 
 // Preview Component - Now uses the centralized markdown utility
-interface BlogPreviewProps {
+interface NewsPreviewProps {
   formData: any;
 }
 
-const BlogPreview: React.FC<BlogPreviewProps> = ({ formData }) => {
+const NewsPreview: React.FC<NewsPreviewProps> = ({ formData }) => {
   return (
     <div className="bg-white p-8 rounded-lg border border-hemp-200">
       <h1 className="text-3xl font-bold text-hemp-900 mb-4">{formData.title || 'Titel'}</h1>
-      
+
       {formData.featured_image && (
         <img
           src={formData.featured_image}
@@ -680,19 +680,19 @@ const BlogPreview: React.FC<BlogPreviewProps> = ({ formData }) => {
           className="w-full h-64 object-cover rounded-lg mb-6"
         />
       )}
-      
+
       {formData.excerpt && (
         <p className="text-lg text-hemp-700 mb-6 italic">{formData.excerpt}</p>
       )}
-      
-      <div 
+
+      <div
         className="prose prose-lg max-w-none prose-hemp"
-        dangerouslySetInnerHTML={{ 
-          __html: markdownToHtml(formData.content || 'Innehåll kommer här...') 
+        dangerouslySetInnerHTML={{
+          __html: markdownToHtml(formData.content || 'Innehall kommer har...')
         }}
       />
     </div>
   );
 };
 
-export default BlogEditorPage;
+export default NewsEditorPage;

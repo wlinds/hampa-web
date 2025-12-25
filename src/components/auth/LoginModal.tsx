@@ -263,7 +263,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           {isSignUp && (
             <div className="mt-4 p-3 bg-hemp-50 border border-hemp-200 rounded-lg">
               <p className="text-hemp-700 text-xs">
-                <strong>OBS:</strong> Nya konton behöver godkännas av en admin innan du kan skriva blogginlägg.
+                <strong>OBS:</strong> Nya konton behöver godkännas av en admin innan du kan skriva nyheter.
               </p>
             </div>
           )}
