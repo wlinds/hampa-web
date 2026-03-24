@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Leaf, LogOut } from 'lucide-react';
+import { Menu, X, Leaf } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLoginModal } from '../contexts/LoginModalContext';
 import { LoginModal } from './auth/LoginModal';
@@ -7,8 +7,8 @@ import { LoginModal } from './auth/LoginModal';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user, signOut } = useAuth();
-  const { isLoginModalOpen, showLoginModal, hideLoginModal } = useLoginModal();
+  // const { user, signOut } = useAuth();
+  const { isLoginModalOpen, hideLoginModal } = useLoginModal();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,7 +24,7 @@ const Header: React.FC = () => {
     { name: 'Tjänster', href: '/#services' },
     { name: 'Om Hampa', href: '/#about-hemp' },
     { name: 'Kalkylator', href: '/kalkyl' },
-    { name: 'Nyheter', href: '/nyheter' },
+    // { name: 'Nyheter', href: '/nyheter' },
     { name: 'Bildgalleri', href: '/#gallery' },
     { name: 'Frågor & Svar', href: '/#faq' },
     { name: 'Om Oss', href: '/#about-us' },
@@ -110,7 +110,7 @@ const Header: React.FC = () => {
             ))}
 
             {/* Auth Button */}
-            {user ? (
+            {/* {user ? (
               <div className="flex items-center space-x-3">
                 <span className="text-hemp-600 text-sm">
                   {user.profile?.full_name || user.email}
@@ -130,7 +130,7 @@ const Header: React.FC = () => {
               >
                 Logga in
               </button>
-            )}
+            )} */}
           </div>
 
           {/* Mobile menu button */}
@@ -161,7 +161,7 @@ const Header: React.FC = () => {
               ))}
 
               {/* Mobile Auth Button */}
-              {user ? (
+              {/* {user ? (
                 <div className="flex items-center justify-between py-2 px-4 border-t border-hemp-200 mt-2 pt-4">
                   <span className="text-hemp-600 text-sm">
                     {user.profile?.full_name || user.email}
@@ -187,7 +187,7 @@ const Header: React.FC = () => {
                 >
                   Logga in
                 </button>
-              )}
+              )} */}
             </div>
           </div>
         )}
