@@ -79,7 +79,44 @@ const FAQSection: React.FC = () => {
         },
         {
           question: 'Hur fungerar hampametoden för ängsestablering?',
-          answer: 'Hampametoden är en flerårig process där vi först använder hampa för att laka ur näringsämnen från jorden. Sedan kombinerar vi hampa med ängsfrön för att skapa naturliga ängsytor. Processen tar några säsonger men ger fantastiska resultat.'
+          answer: (
+            <>
+              <p className="mb-4">Vi använder hampa som ett regenerativt steg för att skapa bättre förutsättningar för blomrika ängar samtidigt som vi levererar ett brett spektrum ekosystemtjänster under processen.</p>
+
+              <div className="space-y-4 mt-4">
+                <div className="bg-hemp-50 rounded-lg p-4">
+                  <h5 className="font-semibold text-hemp-900 mb-2">År 1 - Förbereder mark</h5>
+                  <p className="text-hemp-700 mb-2">Hampa etableras som en snabbväxande gröda som:</p>
+                  <ul className="list-disc list-inside text-hemp-600 space-y-1 ml-2">
+                    <li>levererar ekosystemtjänster</li>
+                    <li>konkurrerar ut ogräs</li>
+                    <li>förbättrar jordstruktur</li>
+                    <li>bidrar till att reducera näringsöverskott i mark, delvis genom bortförsel av biomassa</li>
+                  </ul>
+                </div>
+
+                <div className="bg-earth-50 rounded-lg p-4">
+                  <h5 className="font-semibold text-hemp-900 mb-2">År 2 -  Etablering av äng</h5>
+                  <p className="text-hemp-700 mb-2">Ängsfrö etableras i kombination med låg andel hampa som skyddsgröda:</p>
+                  <ul className="list-disc list-inside text-hemp-600 space-y-1 ml-2">
+                    <li>minskar ogrästryck</li>
+                    <li>skyddar marken under etablering</li>
+                    <li>skapar bättre förutsättningar för fleråriga arter</li>
+                  </ul>
+                </div>
+
+                <div className="bg-hemp-50 rounded-lg p-4">
+                  <h5 className="font-semibold text-hemp-900 mb-2">År 3 - Utvecklad biodiversitetsyta</h5>
+                  <p className="text-hemp-700 mb-2">Ytan utvecklas till en blomrik äng med:</p>
+                  <ul className="list-disc list-inside text-hemp-600 space-y-1 ml-2">
+                    <li>ökad biologisk mångfald</li>
+                    <li>förbättrade livsmiljöer för pollinatörer</li>
+                    <li>lägre skötselbehov jämfört med gräsmatta</li>
+                  </ul>
+                </div>
+              </div>
+            </>
+          )
         },
         {
           question: 'Vad kostar era tjänster?',
@@ -105,7 +142,7 @@ const FAQSection: React.FC = () => {
         },
         {
           question: 'Vad händer med hampan efter skörd?',
-          answer: 'Hampan har många användningsområden: fibrerna används för textil, papper och byggmaterial, fröna är näringsrika och kan användas som mat, och hela växten kan komposteras för att förbättra jorden.'
+          answer: 'Vi tar hand om allt växtmaterial. Hampan har många användningsområden: fibrerna kan användas för textil, papper och byggmaterial, fröna är näringsrika och kan användas som mat.'
         },
         {
           question: 'Behöver vi speciella tillstånd från kommunen?',

@@ -302,7 +302,7 @@ const NewsListPage: React.FC = () => {
               Vill du ocksa skriva om hampa och hallbarhet?
             </h3>
             <p className="text-hemp-100 mb-6 max-w-2xl mx-auto">
-              Kontakta oss for att fa tillgang till var nyhetsplattform och dela dina kunskaper om hampa, biologisk mangfald och hallbar odling.
+              Kontakta oss för att fa tillgång till vår nyhetsplattform och dela dina kunskaper om hampa, biologisk mångfald och hållbar odling.
             </p>
             <Button
               variant="secondary"
